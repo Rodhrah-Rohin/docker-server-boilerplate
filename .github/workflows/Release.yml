@@ -1,0 +1,33 @@
+name: "Release to SERVER_NAME server on merge to master"
+
+run-name: "release"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+    
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  login:
+    name: "Deploy to server"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Login to the server and run commands"
+        uses: garygrossgarten/github-action-ssh@release
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
+          command: |
+            cd /opt/SERVER_NAME/
+            ls -a
+            git pull
+            sudo sh ./init.sh
+        env:
+          CI: true

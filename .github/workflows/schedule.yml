@@ -1,0 +1,20 @@
+name: "Run cron job"
+
+run-name: "cron"
+
+on:
+  schedule:
+    - cron: '59 5 29 2 7'
+    
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  login:
+    name: "Deploy to server"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Upgrade images to the new stable versions"
+        run: |
+          sudo sh ./init.sh

@@ -1,0 +1,48 @@
+subdomain:
+  domainname: sub.domainname.com
+  image: "customreg.com/user/image"
+  build:
+    args:
+      ARGS1: "value"
+  container_name: "service name"
+  labels:
+    traefik.route.domain.etc: "sub.domainname.com"
+  restart: unless-stopped
+  user: service
+  
+  env_file: 
+    - ./.env
+    - ../../.env
+  secrets: 
+    - ./.secrets
+    - ../../.secrets
+  volumes: 
+    - ./data/service:/data
+    - ./configs/service:/config
+
+  depends_on:
+    - service1
+  ports: 
+    - "host:docker" # try not to do this often(use expose instead)
+  expose:
+    - "expose for traefik to pick"
+  networks:
+    - domainetwork
+    - traefiknetwork
+
+  cpus: 0.5
+  mem_limit: 512m
+  cap_add:
+    - ""
+  cap_drop:
+    - ""
+
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://service.com"] ## UPDATE TO A MORE RELIABLE SOURCE
+    interval: 1m30s
+    timeout: 10s
+    retries: 3
+    start_period: 40s
+  logging:
+    driver: "syslog"
+  

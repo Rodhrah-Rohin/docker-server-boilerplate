@@ -1,0 +1,74 @@
+version: "2"
+
+services:
+  subdomain:
+    domainname: "sub.${DOMAIN_NAME}"
+    image: "customreg.com/user/image"
+    build:
+      args:
+        ARGS1: "value"
+    container_name: "service name"
+    labels:
+      traefik.route.domain.etc: "sub.${DOMAIN_NAME}"
+    restart: unless-stopped
+    user: service
+    
+    env_file: 
+      - ./.env
+      - ../../.env
+    secrets: 
+      - ./.secrets
+      - ../../.secrets
+    volumes: 
+      - ./data/service:/data
+      - ./configs/service:/config
+      - domainvolume
+
+    depends_on:
+      - service1
+    ports: 
+      - "host:docker" # try not to do this often(use expose instead)
+    expose:
+      - "expose for traefik to pick"
+    networks:
+      - warden
+      - din
+
+    cpus: 0.5
+    mem_limit: 512m
+    cap_add:
+      - ""
+    cap_drop:
+      - ""
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://service.com"] ## UPDATE TO A MORE RELIABLE SOURCE
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "syslog"
+
+volumes:
+  domainvolume: # this is a docker volume !!! NOT THE VPS SSD connection
+    name: "${DOMAIN_NAME}"
+    labels:
+      com.example.description: "Domain volume"
+      com.example.department: "IT/Ops"
+  internal:
+    external: true
+
+networks:
+  din:
+    name: "${DOMAIN_NAME}"
+    driver: bridge
+    labels:
+      com.example.description: "domain internal network"
+      com.example.department: "Finance"
+  warden:
+    name: warden
+    external:
+      name: warden
+
+# https://docs.docker.com/compose/compose-file/compose-file-v2/
