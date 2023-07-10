@@ -1,0 +1,29 @@
+name: "Release to Mesha server on merge to master"
+
+run-name: "release"
+
+on:
+  push:
+    branches:
+      - "master"
+  workflow_dispatch:
+    
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  login:
+    name: "Deploy to server"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Login to the server"
+        uses: kielabokkie/ssh-key-and-known-hosts-action@v1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-host: ${{ secrets.SSH_HOST }}
+      - name: "Pull new changes to the server"
+        run: |
+          cd /opt/mesha/
+          git pull --force
+      
