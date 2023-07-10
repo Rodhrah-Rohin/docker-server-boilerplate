@@ -1,4 +1,4 @@
-# Aries
+# Mesha
 
 ## VPS Details 
 
@@ -6,11 +6,11 @@
 **Service**: Contabo
 **Specification**:  4vCPU, 8GB ram,200GB SSD
 
-## Guidlines/Steps
+## Guidelines/Steps
 
 ### Steps to add new domains/endpoints
 ### Steps to add new services
 
 ## Precautions/Disclaimers
 
-## File/folder descrption
+## File/folder description
