@@ -1,1 +1,0 @@
-The generated logs of the vps is stored in this folder
