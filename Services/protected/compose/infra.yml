@@ -1,0 +1,134 @@
+version: "3"
+name: "protected_infra"
+
+secrets:
+  cfd_token:
+    file: $SECRETS_DIR/protected/infra/cfd/token
+
+volumes:
+  dockersocket:
+    external: true
+    name: "dockersocket"
+
+  letsencrypt:
+    external: true
+    name: "letsencrypt"
+
+  backup:
+    external: true
+    name: "backup"
+
+networks:
+  network_vlan:
+    external: true
+    name: "protected_vlan"
+
+  stack_vlan:
+    name: "protected_infra"
+    driver: ipvlan
+
+services:
+
+  traefik:
+    image: "traefik:3.0"
+    container_name: "protected_infra_traefik"
+    hostname: "traefik.protected"
+    labels:
+      com.traefik.infra.protected.description: "This is an easy to use dynamic reverse proxy that uses the docker socket to understand which service to forward the request to"
+      com.traefik.infra.protected.justification: "An easy to use and configure reverse proxy that dynamically connects services to hostnames"
+    restart: unless-stopped
+    privileged: false
+    env_file: $SECRETS_DIR/protected/infra/traefik.env
+    volumes: 
+      - letsencrypt:/etc/traefik/certs/
+      - dockersocket:/var/run/docker.sock:ro
+      - ../configs/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ../logs/traefik/:/var/log/traefik/
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    networks:
+      - network_vlan
+      - stack_vlan
+    cpu_count: 1
+    cpu_percent: "100%"
+    cpu_shares: 1
+    cpu_period: 1
+    cpu_quota: 1
+    cpu_rt_runtime: 1
+    cpu_rt_period: 1
+    cpuset: 1
+    mem_limit: 1024m
+
+  cfd:
+    image: "cloudflare/cloudflared"
+    container_name: "protected_infra_cfd"
+    hostname: "cfd.protected"
+    command: tunnel run
+    depends_on:
+      - traefik
+    labels:
+      com.cfd.infra.protected.description: "Creates a tunnel to the cloudflare to expose services to the internet securely"
+      com.cfd.infra.protected.justification: "Ease of use and added security when exposing services to the internet"
+    restart: unless-stopped
+    privileged: false
+    env_file:
+      - $SECRETS_DIR/protected/infra/cfd.env
+    networks:
+      - network_vlan
+      - stack_vlan
+    cpu_count: 1
+    cpu_percent: "100%"
+    cpu_shares: 1
+    cpu_period: 1
+    cpu_quota: 1
+    cpu_rt_runtime: 1
+    cpu_rt_period: 1
+    cpuset: 1
+    mem_limit: 512m
+
+  portainer:
+    image: "portainer/portainer-ee"
+    container_name: "protected_infra_portainer"
+    domainname: "portainer.$PRIMARY_DOMAIN"
+    hostname: "portainer.protected"
+    depends_on:
+      - traefik
+      - cfd
+    labels:
+      com.portainer.infra.protected.description: "Gives you a UI to easily manage and monitor the docker stacks services"
+      com.portainer.infra.protected.justification: "A Warpper to enable admins to quickly deploy services and containers"
+      traefik.http.routers.portainer.rule: "Host(`portainer.$PRIMARY_DOMAIN`)"
+      traefik.http.services.portainer.loadbalancer.server.port: "9443"
+    restart: always
+    privileged: false
+    environment:
+      - VARIABLE_FILE: /run/secrets/secret_file
+    configs:
+      file: "../configs/portainer_config.json"
+    env_file:
+      - $SECRETS_DIR/protected/infra/portainer.env
+    volumes: 
+      - dockersocket:/var/run/docker.sock
+      - $DATA_DIR/protected/infra/portainer:/data
+    expose:
+      - "9443"
+    networks:
+      - network_vlan
+      - stack_vlan
+    cpu_count: 1
+    cpu_percent: "100%"
+    cpu_shares: 1
+    cpu_period: 1
+    cpu_quota: 1
+    cpu_rt_runtime: 1
+    cpu_rt_period: 1
+    cpuset: 1
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD", "curl", "-f", "portainer.$PRIMARY_DOMAIN"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
