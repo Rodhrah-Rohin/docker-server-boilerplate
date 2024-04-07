@@ -5,8 +5,8 @@ run-name: "setup"
 on: 
   workflow_dispatch:
     inputs:
-      REPO_OWNER:
-        description: "The username of the owner of this repo(your username without @)"
+      GH_TOKEN:
+        description: "The github token needed to setup the repo"
         required: true
         type: string
       SERVER_NAME:
@@ -55,13 +55,13 @@ jobs:
       - uses: actions/setup-node@v3.6.0
       - run: |
           npm i replace-in-files-cli keywords -g
-          replace-in-files --string "<SERVER_NAME>" --replacement "${{ github.SERVER_NAME }}"  "./**/**" "./.**" "./.**/**"
-          replace-in-files --string "<SERVER_CODE>" --replacement "${{ github.SERVER_CODE }}"  "./**/**" "./.**" "./.**/**"
-          replace-in-files --string "<SERVER_CPU_COUNT>" --replacement "${{ github.SERVER_CPU_COUNT }}"  "./**/**" "./.**" "./.**/**"
-          replace-in-files --string "<SERVER_RAM>" --replacement "${{ github.SERVER_RAM }}"  "./**/**" "./.**" "./.**/**"
-          replace-in-files --string "<SERVER_STORAGE_CAPACITY>" --replacement "${{ github.SERVER_STORAGE_CAPACITY }}"  "./**/**" "./.**" "./.**/**"
-          replace-in-files --string "<SERVER_STORAGE_TYPE>" --replacement "${{ github.SERVER_STORAGE_TYPE }}"  "./**/**" "./.**" "./.**/**"
-          replace-in-files --string "@officialk" --replacement "@${{ github.REPO_OWNER }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_NAME>" --replacement "${{ inputs.SERVER_NAME }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_CODE>" --replacement "${{ inputs.SERVER_CODE }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_CPU_COUNT>" --replacement "${{ inputs.SERVER_CPU_COUNT }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_RAM>" --replacement "${{ inputs.SERVER_RAM }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_STORAGE_CAPACITY>" --replacement "${{ inputs.SERVER_STORAGE_CAPACITY }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_STORAGE_TYPE>" --replacement "${{ inputs.SERVER_STORAGE_TYPE }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "@officialk" --replacement "@${{ github.repository_owner }}"  "./**/**" "./.**" "./.**/**"
           rm .github/workflows/template-setup.yml
 
           git reset --soft $(git rev-list --max-parents=0 HEAD)
