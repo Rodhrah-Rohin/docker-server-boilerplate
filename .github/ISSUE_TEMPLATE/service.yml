@@ -1,0 +1,73 @@
+name: Add/Update a service
+
+description: Add an issue to add or update a service
+
+title: "[Service]: "
+
+body:
+  - type: dropdown
+    attributes:
+      label: "Select scope"
+      description: "Select the scope the service is to be deployed in"
+      options:
+        - "private"
+        - "protected"
+        - "public"
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: "Stack name"
+      description: "Enter the Stack the service is to be added to"
+  
+  - type: input
+    attributes:
+      label: "Service image"
+      description: "Enter the Service image name along with a stable tag"
+  
+  - type: input
+    attributes:
+      label: "Documentation link"
+      description: "Where can we find the documentation for the configuration and creation of the service"
+  
+  - type: input
+    attributes:
+      label: "Domain Name"
+      description: |
+        Enter the domain the service is to be exposed to
+        if this is an internal
+      value: internal.service.only
+  
+  - type: input
+    attributes:
+      label: "Service Name"
+      description: |
+        Enter the service name
+        this is the key the under the services top level element
+        eg:
+        service:
+          `service_name`:
+      value: service_name
+  
+  - type: input
+    attributes:
+      label: "Hostname Name"
+      description: |
+        Enter the hostname for the service name
+      value: hostname
+  
+  - type: textarea
+    attributes:
+      label: "Service Limits - Optional"
+      value: |
+        cpu_count: 1
+        cpu_percent: "100%"
+        cpu_shares: 1
+        cpu_period: 1
+        cpu_quota: 1
+        cpu_rt_runtime: 1
+        cpu_rt_period: 1
+        cpuset: 1
+        mem_limit: 1024m
+  
