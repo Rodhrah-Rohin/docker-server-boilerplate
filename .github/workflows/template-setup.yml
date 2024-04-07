@@ -1,0 +1,65 @@
+name: "Setup the template to suit your needs"
+
+run-name: "setup"
+
+on: 
+  workflow_dispatch:
+    inputs:
+      SERVER_NAME:
+        description: "The name of the server"
+        required: true
+        type: string
+      SERVER_CODE:
+        description: "The Server code(short code to identify the server)"
+        required: true
+        type: string
+      SERVER_CPU_COUNT:
+        description: "CPU count the server has"
+        required: true
+        type: string
+      SERVER_RAM:
+        description: "Total RAM the server has"
+        required: true
+        type: string
+      SERVER_STORAGE_CAPACITY:
+        description: "Storage capacity of the server"
+        required: true
+        type: string
+      SERVER_STORAGE_TYPE:
+        description: "Storage type of the server"
+        type: choice
+        options:
+          - "NVME"
+          - "SSD"
+          - "HDD"
+    
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup:
+    name: "⚙️ Setup project"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "checkout project"
+        uses: actions/checkout@v3
+        with:
+            fetch-depth: 0
+            token: ${{ inputs.GH_TOKEN }}
+      - run: git pull
+
+      - uses: actions/setup-node@v3.6.0
+      - run: |
+          npm i replace-in-files-cli keywords -g
+          replace-in-files --string "<SERVER_NAME>" --replacement "${{ github.SERVER_NAME }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_CODE>" --replacement "${{ github.SERVER_CODE }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_CPU_COUNT>" --replacement "${{ github.SERVER_CPU_COUNT }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_RAM>" --replacement "${{ github.SERVER_RAM }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_STORAGE_CAPACITY>" --replacement "${{ github.SERVER_STORAGE_CAPACITY }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_STORAGE_TYPE>" --replacement "${{ github.SERVER_STORAGE_TYPE }}"  "./**/**" "./.**" "./.**/**"
+          
+          git reset --soft $(git rev-list --max-parents=0 HEAD)
+          git add .
+          git commit -a --no-verify --amend -m "chore(setup): Intial commit [skip ci]"
+          git push --force

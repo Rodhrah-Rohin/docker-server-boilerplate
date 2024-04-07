@@ -1,0 +1,34 @@
+name: Add/Update a Stack
+
+description: Add an issue to add or update a stack
+
+title: "[Stack]: "
+
+body:
+  - type: dropdown
+    attributes:
+      label: "Select scope"
+      description: "Select the scope the stack is to be deployed in"
+      options:
+        - "private"
+        - "protected"
+        - "public"
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: "Enter the stack name"
+      description: |
+         What is the stack to be called
+         `also used to name the file name` so it is recommended to use a single word or use _
+         eg: example.yml is a valid stack name do not use a file name like example.compose.yml as the snippet is not configured for it
+
+  - type: textarea
+    attributes:
+      label: Stack Description
+      description: |
+         - What is the need for the stack?
+         - What type of services should the stack consist of?
+         - Any other details.
+      render: Markdown

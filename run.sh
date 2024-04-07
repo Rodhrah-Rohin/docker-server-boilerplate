@@ -11,13 +11,13 @@ sudo apt-get update -y
 
 # __________initializing docker service setup
 echo "setting up private services"
-sh ./Services/Private/run.sh
+sh ./Services/private/run.sh
 
 echo "setting up protected services"
-sh ./Services/Protected/run.sh
+sh ./Services/protected/run.sh
 
 echo "setting up public services"
-sh ./Services/Public/run.sh
+sh ./Services/public/run.sh
 
 # _________Cleaning up the stale docker stuff
 echo "cleaning up"

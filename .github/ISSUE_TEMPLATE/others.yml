@@ -1,0 +1,12 @@
+name: Generic Issue
+
+description: Create a generic issue
+
+title: "[Others]: "
+
+body:
+  - type: textarea
+    attributes:
+      label: Details
+      description: Describe the issue in as much detail as you can
+      render: Markdown
