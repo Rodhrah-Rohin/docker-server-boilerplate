@@ -26,8 +26,7 @@ jobs:
           privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
           command: |
             cd /opt/SERVER_NAME/
-            ls -a
             git pull
-            sudo sh ./init.sh
+            sudo sh init.sh &>> "logs/main-$(date+'%Y-%m-%d').log"
         env:
           CI: true

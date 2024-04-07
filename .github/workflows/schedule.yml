@@ -15,6 +15,10 @@ jobs:
     name: "Deploy to server"
     runs-on: ubuntu-latest
     steps:
-      - name: "Upgrade images to the new stable versions"
+      - name: "Perform backup"
         run: |
-          sudo sh ./init.sh
+          echo "Perform backup"
+      
+      - name: "Perform Health checks"
+        run: |
+          echo "Perform Health checks"
