@@ -1,0 +1,64 @@
+name: Bug Report
+
+description: File a bug report
+
+title: "[Bug]: "
+
+labels: ["bug"]
+
+body:
+  - type: dropdown
+    attributes:
+      label: "Select scope"
+      description: "Select the scope of the service that the bug was found in"
+      options:
+        - "private"
+        - "protected"
+        - "public"
+        - "No Idea"
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: "Enter the stack name"
+      description: The stack of the service the bug was found in
+      
+  - type: input
+    attributes:
+      label: "Enter the domain name"
+      description: The publicly accessible domain name of the service the bug was found in
+
+  - type: input
+    attributes:
+      label: "Enter the service name"
+      description: The service the bug was found in
+    validations:
+      required: true
+      
+  - type: textarea
+    attributes:
+      label: Bug Description
+      description: Please describe what is not working right
+      placeholder: |
+        The form on main site is throwing an error on valid submission as well
+  
+  - type: textarea
+    attributes:
+      label: Bug Recreation Steps
+      description: Please describe how to recreate the steps
+      placeholder: |
+        - Go to the main site > scroll down to the bottom
+        - fill the form with all valid inputs and submit
+        - the error alert pops up
+  
+  - type: textarea
+    attributes:
+      label: Device details
+      description: Describe the device details on which the bug occured
+      render: Markdown
+      value: |
+        - Browser: Chrome/Mozzila/Safari/Edge/Others(please mention)
+        - Browser Version: v.x.x
+        - OS: Windows/Linux/MacOS
+        - OS Version: 10/8/7/ubuntu/others(please mention)

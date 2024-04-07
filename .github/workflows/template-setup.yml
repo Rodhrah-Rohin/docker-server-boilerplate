@@ -1,0 +1,72 @@
+name: "Setup the template to suit your needs"
+
+run-name: "setup"
+
+on: 
+  workflow_dispatch:
+    inputs:
+      GH_TOKEN:
+        description: "The github token needed to setup the repo"
+        required: true
+        type: string
+      SERVER_NAME:
+        description: "The name of the server"
+        required: true
+        type: string
+      SERVER_CODE:
+        description: "The Server code(short code to identify the server)"
+        required: true
+        type: string
+      SERVER_CPU_COUNT:
+        description: "CPU count the server has"
+        required: true
+        type: string
+      SERVER_RAM:
+        description: "Total RAM the server has"
+        required: true
+        type: string
+      SERVER_STORAGE_CAPACITY:
+        description: "Storage capacity of the server"
+        required: true
+        type: string
+      SERVER_STORAGE_TYPE:
+        description: "Storage type of the server"
+        type: choice
+        options:
+          - "NVME"
+          - "SSD"
+          - "HDD"
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup:
+    name: "⚙️ Setup project"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "checkout project"
+        uses: actions/checkout@v3
+        with:
+            fetch-depth: 0
+            token: ${{ inputs.GH_TOKEN }}
+      - run: git pull
+
+      - uses: actions/setup-node@v3.6.0
+      - run: |
+          npm i replace-in-files-cli keywords -g
+          replace-in-files --string "<SERVER_NAME>" --replacement "${{ inputs.SERVER_NAME }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_CODE>" --replacement "${{ inputs.SERVER_CODE }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_CPU_COUNT>" --replacement "${{ inputs.SERVER_CPU_COUNT }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_RAM>" --replacement "${{ inputs.SERVER_RAM }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_STORAGE_CAPACITY>" --replacement "${{ inputs.SERVER_STORAGE_CAPACITY }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "<SERVER_STORAGE_TYPE>" --replacement "${{ inputs.SERVER_STORAGE_TYPE }}"  "./**/**" "./.**" "./.**/**"
+          replace-in-files --string "@officialk" --replacement "@${{ github.repository_owner }}"  "./**/**" "./.**" "./.**/**"
+          rm .github/workflows/template-setup.yml
+
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git reset --soft $(git rev-list --max-parents=0 HEAD)
+          git add .
+          git commit -a --no-verify --amend -m "chore(setup): Intial commit [skip ci]"
+          git push --force
