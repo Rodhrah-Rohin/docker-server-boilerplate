@@ -25,6 +25,8 @@
 ## Precautions/Disclaimers
 - This is a template made for personal use and is based on my specific use case, although as the template consists of the general pieces used to maintain docker stacks you can use it to fit your projects/deployments as well
 - The template is intended to be used on a LINUX SERVER only
+- The project assumes you have git installed and configured on your server
+- The project assumes you have SSH installed and configured on your server
 - This project is most productive when worked on VSCode
 	- Use the `stack` and `service` snippets to quickly get up and running while development
 - The resolver used to internally resolve hostnames to domain names is traefik - [Traefik Docs](https://doc.traefik.io/traefik/)
@@ -63,7 +65,7 @@ Please go through the [general list of good practices](./Guidelines.md)
 	- setup.sh - first time initialization to help properly set up, install, and configure docker with docker compose __suggested to delete this file after a completed install__
 	- genenv.sh - generate a bunch of env files securely to use in compose files
 	- gensec.sh - generate a bunch of secret files securely to use in compose files
-
+	- genstack.sh - generate stack level envs to hide ports and other sensitive data
 
 - run.sh - the list of commands fired to setup/update the services
 

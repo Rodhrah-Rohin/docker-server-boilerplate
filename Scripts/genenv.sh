@@ -54,5 +54,5 @@ sudo chmod 600 $SECRETS_DIR
 history -c
 
 # END and output
-echo "All Done!!! - Here is a list of envs added\n\n"
+echo "All Done!!! - Here is a list of env files added\n\n"
 echo ${listOfChangedFiles[@]}

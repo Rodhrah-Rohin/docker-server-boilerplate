@@ -7,8 +7,13 @@ These are my changes made for the service
 
 - [service_name](#link)
 
-## Any additional details you want to add
+## Stack ENV Vars to be added
 
+_JUST ADD THE KEYS NO VALUES REQUIRED_
+
+- ENV_KEY - description and necessity
+
+## Any additional details you want to add
 
 ## Checklist before requesting a review
 - [ ] The domains associated are created and configured appropriately in cloudflared

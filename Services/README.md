@@ -1,6 +1,12 @@
 # Private Service folder
 This folder is to be used for only the admin level services eg: backup generator, system analytics, portainer, etc
 
+# Protected Service folder
+This folder is to be used for internal apps that are not to be exposed to external users, eg. time tracking, project management, etc
+
+# Protected Service folder
+This folder is to be used for public apps that can be directly accessed by public users as well eg. Front end websites
+
 ### Files and folder structure
 - compose/ - The main folder consisting of all the stacks in docker compose
   - NOTES!!!
