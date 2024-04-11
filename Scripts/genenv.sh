@@ -1,10 +1,10 @@
 #!/bin/bash
-listOfChangedFiles = ()
+listOfChangedFiles=()
 
 while (1); # Scope Loop
 do
   echo "\n"
-  select network in ["private" "protected" "public" "exit"]
+  select network in "private" "protected" "public" "exit";
   do
     if [ $network == "exit" ]; then
       break

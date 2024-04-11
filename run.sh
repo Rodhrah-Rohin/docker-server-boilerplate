@@ -4,7 +4,7 @@
 # Goes through each scope and runs the stacks
 
 function runScope {
-	networks = ("private" "protected" "public")
+	networks=("private" "protected" "public")
 	for network in networks; do
 		echo "setting up $network services"
 		cd ./Services/$network/
