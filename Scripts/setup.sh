@@ -4,32 +4,21 @@ SCOPES=("private" "protected" "public")
 SECRETS_DIR='/etc/docker/secrets'
 INFRA_STACK='infra'
 DATA_DIR='/var/docker_data/'
-
-## General info
-echo "PLEASE KEEP THESE DETAILS HANDY\n"
-echo "1.Server Details\n"
-echo "1.1.What is the Server Name - optional"
-echo "1.2.What is the Server Code - optional"
-echo "1.3.What is the Server CPU Count - optional"
-echo "1.4.What is the Server RAM amount - optional"
-echo "1.5.What is the Server Storage Space - optional"
-echo "2.Configuration Details"
-echo "2.0.The PRIMARY DOMAIN"
-echo "2.1.Secrets dir to store the compose secrets data - default $SECRETS_DIR"
-echo "2.2.Data dir to store the compose services data - default $DATA_DIR"
+PORT=9443
 
 # Setup Server
 # add Server info
-echo "SERVER RELATED DATA\n"
+echo "SERVER RELATED DATA"
 read -p "Enter the Server Name: " SERVER_NAME
 read -p "Enter the Server Code: " SERVER_CODE
 read -p "Enter the Server CPU Count: " SERVER_CPU_COUNT
 read -p "Enter the Server RAM amount: " SERVER_RAM
 read -p "Enter the Server Storage Space: " SERVER_STORAGE_TYPE
 read -p "Enter the Primary Domain(example.com): " PRIMARY_DOMAIN
-echo "COMPOSE RELATED DATA\n"
+echo "COMPOSE RELATED DATA"
 read -p "Enter the path to the secrets/env folder:[$SECRETS_DIR]=> " SECRETS_DIR
 read -p "Enter the path to the data folder:[$DATA_DIR]=> " DATA_DIR
+read -p "Enter Portainer port:[$PORT]=> " PORT
 
 mkdir -p $SECRETS_DIR
 mkdir -p $DATA_DIR
@@ -90,8 +79,9 @@ echo "Adding docker volumes"
 docker volume create --name letsencrypt
 docker volume create --name backup
 
-# Setting up cloudflared for each network
+# Setting up cloudflared for each network and portainer
 echo "Setting up cloudflare tunnels"
+echo "PORTAINER_PORT = $PORT" >> $SECRETS_DIR/private/$INFRA_STACK.env
 for network in "private" "protected" "public"
 do
   read -sp "Paste in the cloudflared token for $network network: " token
@@ -102,16 +92,16 @@ do
 done
 
 # Export variables
-echo "export SERVER_NAME=\"$SERVER_NAME\"" >> /etc/profile.d/server.sh
-echo "export SERVER_CODE=\"$SERVER_CODE\"" >> /etc/profile.d/server.sh
-echo "export SERVER_CPU_COUNT=\"$SERVER_CPU_COUNT\"" >> /etc/profile.d/server.sh
-echo "export SERVER_RAM=\"$SERVER_RAM\"" >> /etc/profile.d/server.sh
-echo "export SERVER_STORAGE_TYPE=\"$SERVER_STORAGE_TYPE\"" >> /etc/profile.d/server.sh
-echo "export PRIMARY_DOMAIN=\"$PRIMARY_DOMAIN\"" >> /etc/profile.d/docker.sh
-echo "export SECRETS_DIR=\"$SECRETS_DIR\"" >> /etc/profile.d/docker.sh
-echo "export DATA_DIR=\"$DATA_DIR\"" >> /etc/profile.d/docker.sh
-echo "export DOCKER=\"$DOCKER\"" >> /etc/profile.d/docker.sh
-echo "export DOCKER_COMPOSE=\"$DOCKER_COMPOSE\"" >> /etc/profile.d/docker.sh
+echo "export SERVER_NAME=\"$SERVER_NAME\"" >> ~/.bashrc
+echo "export SERVER_CODE=\"$SERVER_CODE\"" >> ~/.bashrc
+echo "export SERVER_CPU_COUNT=\"$SERVER_CPU_COUNT\"" >> ~/.bashrc
+echo "export SERVER_RAM=\"$SERVER_RAM\"" >> ~/.bashrc
+echo "export SERVER_STORAGE_TYPE=\"$SERVER_STORAGE_TYPE\"" >> ~/.bashrc
+echo "export PRIMARY_DOMAIN=\"$PRIMARY_DOMAIN\"" >> ~/.bashrc
+echo "export SECRETS_DIR=\"$SECRETS_DIR\"" >> ~/.bashrc
+echo "export DATA_DIR=\"$DATA_DIR\"" >> ~/.bashrc
+echo "export DOCKER=\"$DOCKER\"" >> ~/.bashrc
+echo "export DOCKER_COMPOSE=\"$DOCKER_COMPOSE\"" >> ~/.bashrc
 
 # Clearing out the history of inputs
 echo "Cleaning up and setup details"
