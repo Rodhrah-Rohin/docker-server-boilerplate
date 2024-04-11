@@ -26,3 +26,6 @@ The impact can be <DomainName>, impacted area in the server,
  - refactor(Services): Removed unwanted files from scopes
  - docs(github): Updated the Readme and pull request template to match
  - files(logs): Added .empty to logs in scoped folder
+
+### Date - (12/04/2024)
+ - feature(traefik): Removing traefik from the template as it is an overhead to cloudflared
