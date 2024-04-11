@@ -41,11 +41,4 @@ services:
       - network_vlan
       - stack_vlan
     cpu_count: 1
-    cpu_percent: "100%"
-    cpu_shares: 1
-    cpu_period: 1
-    cpu_quota: 1
-    cpu_rt_runtime: 1
-    cpu_rt_period: 1
-    cpuset: 1
     mem_limit: 512m

@@ -40,13 +40,6 @@ services:
       - network_vlan
       - stack_vlan
     cpu_count: 1
-    cpu_percent: "100%"
-    cpu_shares: 1
-    cpu_period: 1
-    cpu_quota: 1
-    cpu_rt_runtime: 1
-    cpu_rt_period: 1
-    cpuset: 1
     mem_limit: 512m
 
   portainer:
@@ -61,31 +54,18 @@ services:
       com.portainer.infra.private.justification: "A Warpper to enable admins to quickly deploy services and containers"
     restart: always
     privileged: false
-    environment:
-      - VARIABLE_FILE: /run/secrets/secret_file
-    configs:
-      file: "../configs/portainer_config.json"
-    env_file:
-      - $SECRETS_DIR/private/infra/portainer.env
     volumes: 
-      - dockersocket:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock
       - $DATA_DIR/private/infra/portainer:/data
     expose:
-      - "9443"
+      - "$PORTAINER_PORT"
     networks:
       - network_vlan
       - stack_vlan
     cpu_count: 1
-    cpu_percent: "100%"
-    cpu_shares: 1
-    cpu_period: 1
-    cpu_quota: 1
-    cpu_rt_runtime: 1
-    cpu_rt_period: 1
-    cpuset: 1
     mem_limit: 512m
     healthcheck:
-      test: ["CMD", "curl", "-f", "portainer.$PRIMARY_DOMAIN"]
+      test: ["CMD", "curl", "-f", "https://localhost:$PORTAINER_PORT"]
       interval: 1m30s
       timeout: 10s
       retries: 3

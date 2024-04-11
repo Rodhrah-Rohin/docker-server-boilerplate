@@ -62,7 +62,7 @@ body:
       label: "Service Limits - Optional"
       value: |
         cpu_count: 1
-        cpu_percent: "100%"
+        cpu_percent: 100
         cpu_shares: 1
         cpu_period: 1
         cpu_quota: 1
