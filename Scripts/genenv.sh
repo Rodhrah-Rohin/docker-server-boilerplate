@@ -51,6 +51,7 @@ done
 echo "refreshing permissions"
 sudo chown root:root $SECRETS_DIR
 sudo chmod 600 $SECRETS_DIR
+clear
 history -c
 
 # END and output

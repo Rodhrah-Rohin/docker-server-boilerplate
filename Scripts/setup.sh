@@ -109,6 +109,7 @@ export DOCKER_COMPOSE
 
 # Clearing out the history of inputs
 echo "Cleaning up and setup details"
+clear
 history -c
 
 # Outputs
