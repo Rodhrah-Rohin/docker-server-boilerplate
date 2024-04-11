@@ -16,11 +16,7 @@ echo "1.5.What is the Server Storage Space - optional"
 echo "2.Configuration Details"
 echo "2.0.The PRIMARY DOMAIN"
 echo "2.1.Secrets dir to store the compose secrets data - default $SECRETS_DIR"
-echo "2.2.Secrets dir to store the compose secrets data - default $SECRETS_DIR"
-
-## Uncomment if you need cloudflare dns based ssl in traefik
-# echo "2.3.Your cloudflare email\n"
-# echo "2.4.Your cloudflare API with DNS write permissions for all the domains needing ssl certs\n"
+echo "2.2.Data dir to store the compose services data - default $DATA_DIR"
 
 # Setup Server
 # add Server info
@@ -32,21 +28,8 @@ read -p "Enter the Server RAM amount: " SERVER_RAM
 read -p "Enter the Server Storage Space: " SERVER_STORAGE_TYPE
 read -p "Enter the Primary Domain(example.com): " PRIMARY_DOMAIN
 echo "COMPOSE RELATED DATA\n"
-read -p "Enter the path to the data folder:[$DATA_DIR]=> " DATA_DIR
 read -p "Enter the path to the secrets/env folder:[$SECRETS_DIR]=> " SECRETS_DIR
-
-## Uncomment if you need cloudflare dns based ssl in traefik
-# echo "CLOUDFLARE RELATED DATA\n"
-# read -p "Enter the Cloudflare Email: " CF_EMAIL
-# read -p "Enter the Cloudflare Token with DNS edit permissions: " CF_DNS_API_TOKEN
-
-# # generate traefik env file
-# echo "Adding cloudflare values to treafik.env files"
-# for network in "${SCOPES[@]}"; do
-#   echo "# Env values for the ${network}_${INFRA_STACK}_traefik service" >> $SECRETS_DIR/$network/$INFRA_STACK/traefik.env
-#   echo "\nCF_EMAIL = \"$CF_EMAIL\"" >> $SECRETS_DIR/$network/$INFRA_STACK/traefik.env
-#   echo "\CF_DNS_API_TOKEN = \"$CF_DNS_API_TOKEN\"" >> $SECRETS_DIR/$network/$INFRA_STACK/traefik.env
-# done
+read -p "Enter the path to the data folder:[$DATA_DIR]=> " DATA_DIR
 
 # Add Docker's official GPG key:
 echo "Installing Docker and Docker Compose..."

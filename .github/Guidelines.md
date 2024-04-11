@@ -1,4 +1,4 @@
-## General Guidelines for Server, Docker/Docker-compose+Traefik, and Cloudflared
+## General Guidelines for Server, Docker/Docker-compose, and Cloudflared
 
 ### Server
 - Set up the repo under a meaninful folder instead of the default root
@@ -8,7 +8,7 @@
 - Create a new user `Docker` that does not have root access and give docker access to only that user
 	- This ensures that if any escalation happens it wont give the attacker access to the server
 
-### Docker/Docker-compose + Traefik
+### Docker/Docker-compose
 _A lot of the points below are picked from this [site](https://www.smarthomebeginner.com/traefik-docker-security-best-practices/)_
 - Do NOT Just blindly trust a image and host it, please do verify the contents and usage of the image as they may be used to do other tasks(Crypto mining)
 - Isolation is key
@@ -18,7 +18,7 @@ _A lot of the points below are picked from this [site](https://www.smarthomebegi
 - Use the secret/env files to safely store the sensitive data
 	- Have seperated files for each stack(prefer seperate services if you are up for it)
 - Expose ports rather than mapping them
-	- This ensures only traefik has access to them and no other entity can access it from outside the docker network until intended
+	- This ensures only cloudflared has access to them and no other entity can access it from outside the docker network until intended
 	- If you are mapping ports than use the env files to hide the port in static code
 - Use stable versions of the image instead of the latest ones
 	- They tend to be more tested and robust

@@ -29,7 +29,6 @@
 - The project assumes you have SSH installed and configured on your server
 - This project is most productive when worked on VSCode
 	- Use the `stack` and `service` snippets to quickly get up and running while development
-- The resolver used to internally resolve hostnames to domain names is traefik - [Traefik Docs](https://doc.traefik.io/traefik/)
 - The project intends to use the cloudflare tunnels to directly connect to the services without need of other network hassles - [Cloudflared Docs](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/)
 - There are 3 tunnels needed to securely seperate the private,protected, and public networks for added security
 - DO NOT UPDATE THE INTERPOLATED DATA($SECRET_DIR, $DATA_DIR, etc) as they are used to run docker compose stacks programatically
@@ -74,5 +73,4 @@ Please go through the [general list of good practices](./Guidelines.md)
 
 ## Read up a bit more
 [Docker Compose](https://docs.docker.com/compose/)
-[Traefik](https://doc.traefik.io/traefik/)
 [Cloudflare](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/)

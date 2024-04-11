@@ -1,10 +1,6 @@
 version: "3"
 name: "private_infra"
 
-secrets:
-  cfd_token:
-    file: $SECRETS_DIR/private/infra/cfd/token
-
 volumes:
   dockersocket:
     external: true
@@ -24,50 +20,15 @@ networks:
     name: "private_vlan"
 
   stack_vlan:
-    name: "private_infra"
+    name: "private_infra_vlan"
     driver: ipvlan
 
 services:
-
-  traefik:
-    image: "traefik:3.0"
-    container_name: "private_infra_traefik"
-    hostname: "traefik.private"
-    labels:
-      com.traefik.infra.private.description: "This is an easy to use dynamic reverse proxy that uses the docker socket to understand which service to forward the request to"
-      com.traefik.infra.private.justification: "An easy to use and configure reverse proxy that dynamically connects services to hostnames"
-    restart: unless-stopped
-    privileged: false
-    env_file: $SECRETS_DIR/private/infra/traefik.env
-    volumes: 
-      - letsencrypt:/etc/traefik/certs/
-      - dockersocket:/var/run/docker.sock:ro
-      - ../configs/traefik.yml:/etc/traefik/traefik.yml:ro
-      - ../logs/traefik/:/var/log/traefik/
-    ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080"
-    networks:
-      - network_vlan
-      - stack_vlan
-    cpu_count: 1
-    cpu_percent: "100%"
-    cpu_shares: 1
-    cpu_period: 1
-    cpu_quota: 1
-    cpu_rt_runtime: 1
-    cpu_rt_period: 1
-    cpuset: 1
-    mem_limit: 1024m
-
   cfd:
     image: "cloudflare/cloudflared"
     container_name: "private_infra_cfd"
-    hostname: "cfd.private"
+    hostname: "cfd.private.local"
     command: tunnel run
-    depends_on:
-      - traefik
     labels:
       com.cfd.infra.private.description: "Creates a tunnel to the cloudflare to expose services to the internet securely"
       com.cfd.infra.private.justification: "Ease of use and added security when exposing services to the internet"
@@ -92,15 +53,12 @@ services:
     image: "portainer/portainer-ee"
     container_name: "private_infra_portainer"
     domainname: "portainer.$PRIMARY_DOMAIN"
-    hostname: "portainer.private"
+    hostname: "portainer.private.local"
     depends_on:
-      - traefik
       - cfd
     labels:
       com.portainer.infra.private.description: "Gives you a UI to easily manage and monitor the docker stacks services"
       com.portainer.infra.private.justification: "A Warpper to enable admins to quickly deploy services and containers"
-      traefik.http.routers.portainer.rule: "Host(`portainer.$PRIMARY_DOMAIN`)"
-      traefik.http.services.portainer.loadbalancer.server.port: "9443"
     restart: always
     privileged: false
     environment:
