@@ -1,37 +1,34 @@
 #!/bin/bash
 
-
 # Goes through each scope and runs the stacks
-
 function runScope {
-	networks=("private" "protected" "public")
-	for network in networks; do
+	for network in "private" "protected" "public";
+	do
 		echo "setting up $network services"
-		cd ./Services/$network/
-		for filename in ./compose/*; do
+		cd ./Services/$network/compose/
+		for filename in `ls .`; do
 			runDockerCompose $network $filename
 		done
-		cd ../../
+		cd ../../../
 	done
 }
-
  
 # Runs the given docker compose file that is passed
 # $1 Network Scope
 # $2 File name Stack.yml
 function runDockerCompose {
-	NETWORK = $1
-	FILENAME = $2
-	STACK = "${filename%.*}"
+	NETWORK=$1
+	FILENAME=$2
+	STACK="${filename%.*}"
 	echo "trying to deploy $STACK stack"
-	OPTIONS = --file $FILENAME up -d -p "${NETWORK}_${STACK}"
-	if envExists -f $SECRETS_DIR/$NETWORK/$STACK.env; then
-		OPTIONS+= --env-file $SECRETS_DIR/$NETWORK/$STACK.env
+	if test -f $SECRETS_DIR/$NETWORK/$STACK.env;
+	then
+		docker compose --env-file $SECRETS_DIR/$NETWORK/$STACK.env -p "${NETWORK}_${STACK}" --file $FILENAME up -d 
+	else
+		docker compose -p "${NETWORK}_${STACK}" --file $FILENAME up -d
 	fi
-	docker compose $OPTIONS
 	echo "$STACK stack deployed successfully"
 }
-
 
 # ___________Initializing system level config
 echo "service upgrade/deploy process Initialized"
@@ -41,7 +38,6 @@ echo "preparing for execution"
 echo "checking for upgrades for the server or its services"
 sudo apt-get upgrade -y
 sudo apt-get update -y
-
 
 # Explicitly define additional reusable network/s (optional)
 # each stack gets its own network additionally by default
@@ -55,22 +51,22 @@ runScope
 
 # _________Cleaning up the stale docker stuff
 echo "cleaning up"
+
 echo "removing stale/unused containers"
-docker container prune -a -f --filter "until=750h"
+docker container prune -f --filter "until=750h"
 
 echo "removing stale/unused networks"
-docker network prune -a -f --filter "until=750h"
+docker network prune -f --filter "until=750h"
 
 echo "removing stale/unused volumes"
-docker volumes prune -a -f --filter "until=750h"
+docker volume prune -f
 
 echo "removing stale/unused images"
-docker image prune -a -f --filter "until=750h"
-
+docker image prune -af --filter "until=750h"
 
 # ______________________________End and stats
 echo "service upgrade/deploy process Completed"
 
-echo "Displaying service list"
+# echo "Displaying service list"
 docker ps -a
 # ____________________________________________

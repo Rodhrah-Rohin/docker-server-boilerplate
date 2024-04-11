@@ -1,7 +1,7 @@
 #!/bin/bash
 # General variables
 SCOPES=("private" "protected" "public")
-SECRETS_DIR='~/docker/secrets'
+SECRETS_DIR='/etc/docker/secrets'
 INFRA_STACK='infra'
 DATA_DIR='/var/docker_data/'
 
@@ -31,6 +31,9 @@ echo "COMPOSE RELATED DATA\n"
 read -p "Enter the path to the secrets/env folder:[$SECRETS_DIR]=> " SECRETS_DIR
 read -p "Enter the path to the data folder:[$DATA_DIR]=> " DATA_DIR
 
+mkdir -p $SECRETS_DIR
+mkdir -p $DATA_DIR
+
 # Add Docker's official GPG key:
 echo "Installing Docker and Docker Compose..."
 sudo apt-get upgrade
@@ -52,9 +55,10 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 
 # Adding Docker group
 echo "Adding docker user and permissions"
+echo "(If it fails here please comment This section and rerun)"
 sudo groupadd docker
 sudo usermod -aG docker $USER
-newgrp docker
+sudo newgrp docker
 sudo chown "$USER":"$USER" /home/"$USER"/.docker -R
 sudo chmod g+rwx "$HOME/.docker" -R
 
@@ -62,6 +66,8 @@ sudo chmod g+rwx "$HOME/.docker" -R
 echo "Testing docker"
 docker run -d hello-world
 docker ps
+DOCKER=$(docker --version)
+DOCKER_COMPOSE=$(docker compose version)
 
 # Enable docker on startup
 echo "Adding docker to start up"
@@ -81,31 +87,31 @@ docker network create -d ipvlan public_vlan
 
 # adding common volumes
 echo "Adding docker volumes"
-docker volume create letsencrypt:/etc/letsencrypt
-docker volume create dockersocket:/var/run/docker.sock
-docker volume create backup:/var/backup
+docker volume create --name letsencrypt
+docker volume create --name backup
 
 # Setting up cloudflared for each network
 echo "Setting up cloudflare tunnels"
-networks=("private" "protected" "public")
-for network in "${networks[@]}"
+for network in "private" "protected" "public"
 do
   read -sp "Paste in the cloudflared token for $network network: " token
+  mkdir -p $SECRETS_DIR/$network/$INFRA_STACK
+  touch $SECRETS_DIR/$network/$INFRA_STACK/cfd.env
   echo "TUNNEL_TOKEN = $token" >> $SECRETS_DIR/$network/$INFRA_STACK/cfd.env
-  echo "The token is stored in '$SECRETS_DIR/$network/$INFRA_STACK/cfd.env'"
+  echo "The token is stored in '\$SECRETS_DIR/$network/$INFRA_STACK/cfd.env'"
 done
 
 # Export variables
-export SERVER_NAME
-export SERVER_CODE
-export SERVER_CPU_COUNT
-export SERVER_RAM
-export SERVER_STORAGE_TYPE
-export PRIMARY_DOMAIN
-export SECRETS_DIR
-export DATA_DIR
-export DOCKER
-export DOCKER_COMPOSE
+echo "export SERVER_NAME=\"$SERVER_NAME\"" >> /etc/profile.d/server.sh
+echo "export SERVER_CODE=\"$SERVER_CODE\"" >> /etc/profile.d/server.sh
+echo "export SERVER_CPU_COUNT=\"$SERVER_CPU_COUNT\"" >> /etc/profile.d/server.sh
+echo "export SERVER_RAM=\"$SERVER_RAM\"" >> /etc/profile.d/server.sh
+echo "export SERVER_STORAGE_TYPE=\"$SERVER_STORAGE_TYPE\"" >> /etc/profile.d/server.sh
+echo "export PRIMARY_DOMAIN=\"$PRIMARY_DOMAIN\"" >> /etc/profile.d/docker.sh
+echo "export SECRETS_DIR=\"$SECRETS_DIR\"" >> /etc/profile.d/docker.sh
+echo "export DATA_DIR=\"$DATA_DIR\"" >> /etc/profile.d/docker.sh
+echo "export DOCKER=\"$DOCKER\"" >> /etc/profile.d/docker.sh
+echo "export DOCKER_COMPOSE=\"$DOCKER_COMPOSE\"" >> /etc/profile.d/docker.sh
 
 # Clearing out the history of inputs
 echo "Cleaning up and setup details"
@@ -113,8 +119,6 @@ clear
 history -c
 
 # Outputs
-DOCKER = ${docker --version}
-DOCKER_COMPOSE = ${docker compose --version}
 echo "Docker Version - $DOCKER"
 echo "Docker Compose Version - $DOCKER_COMPOSE"
 echo "Check here which Compose version are compatible https://docs.docker.com/compose/compose-file/compose-versioning/#compatibility-matrix"
@@ -123,4 +127,5 @@ echo "Check here which Compose version are compatible https://docs.docker.com/co
 echo "Use the secrets.sh file to quickly create secrets"
 echo "Please do go through the readme files"
 echo "Please do go through the guidelines mentioned"
+echo "Please reboot the server for the changes to take effect"
 
