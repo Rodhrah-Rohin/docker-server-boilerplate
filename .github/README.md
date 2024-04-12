@@ -64,7 +64,7 @@ Please go through the [general list of good practices](./Guidelines.md)
 	- setup.sh - first time initialization to help properly set up, install, and configure docker with docker compose __suggested to delete this file after a completed install__
 	- genenv.sh - generate a bunch of env files securely to use in compose files
 	- gensec.sh - generate a bunch of secret files securely to use in compose files
-	- genstack.sh - generate stack level envs to hide ports and other sensitive data
+	- runstack.sh - Runs specific stack/s along with generating the envs needed for the stack(you can use this to deply new stacks without needing to redeploy all services)
 
 - run.sh - the list of commands fired to setup/update the services
 

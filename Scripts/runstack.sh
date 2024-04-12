@@ -14,6 +14,7 @@ do
 		fi
 		mkdir -p $SECRETS_DIR/$network/$stack/
 		listOfChangedFiles+=("\$SECRETS_DIR/$network/$stack.env")
+		echo "If you wish to skip stack envs then keep it empty"
 		while [ true ]; # File Loop
 		do
 			read -p "Enter the ENV key/name or empty to exit: " name
@@ -24,7 +25,13 @@ do
 			echo "$name = \"$value\"" >> $SECRETS_DIR/$network/$stack.env
 			echo ""
 		done 
-		echo ""
+		echo "Running the $stack stack"
+		if test -f $SECRETS_DIR/$network/$stack.env;
+		then
+			docker compose --env-file $SECRETS_DIR/$network/$stack.env -p "${network}_${stack}" --file ../Services/$network/compose/$stack.yml up -d 
+		else
+			docker compose -p "${network}_${stack}" --file ../Services/$network/compose/$stack.yml up -d
+		fi
 	done
 	echo ""
 done
