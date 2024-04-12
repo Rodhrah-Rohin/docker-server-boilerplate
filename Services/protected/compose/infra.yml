@@ -2,10 +2,6 @@ version: "3"
 name: "protected_infra"
 
 volumes:
-  dockersocket:
-    external: true
-    name: "dockersocket"
-
   letsencrypt:
     external: true
     name: "letsencrypt"
@@ -21,7 +17,6 @@ networks:
 
   stack_vlan:
     name: "protected_infra"
-    driver: ipvlan
 
 services:
 

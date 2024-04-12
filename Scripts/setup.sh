@@ -1,10 +1,7 @@
 #!/bin/bash
 # General variables
 SCOPES=("private" "protected" "public")
-SECRETS_DIR='/etc/docker/secrets'
 INFRA_STACK='infra'
-DATA_DIR='/var/docker_data/'
-PORT=9443
 
 # Setup Server
 # add Server info
@@ -16,9 +13,13 @@ read -p "Enter the Server RAM amount: " SERVER_RAM
 read -p "Enter the Server Storage Space: " SERVER_STORAGE_TYPE
 read -p "Enter the Primary Domain(example.com): " PRIMARY_DOMAIN
 echo "COMPOSE RELATED DATA"
-read -p "Enter the path to the secrets/env folder:[$SECRETS_DIR]=> " SECRETS_DIR
-read -p "Enter the path to the data folder:[$DATA_DIR]=> " DATA_DIR
-read -p "Enter Portainer port:[$PORT]=> " PORT
+read -p "Enter the path to the secrets/env folder:[/etc/docker/secrets]=> " SECRETS_DIR
+read -p "Enter the path to the data folder:[/var/docker_data/]=> " DATA_DIR
+read -p "Enter Portainer port:[9443]=> " PORT
+
+PORT=${PORT:-9443}
+SECRETS_DIR=${SECRETS_DIR:-'/etc/docker/secrets'}
+DATA_DIR=${DATA_DIR:-'/var/docker_data/'}
 
 mkdir -p $SECRETS_DIR
 mkdir -p $DATA_DIR
@@ -47,9 +48,6 @@ echo "Adding docker user and permissions"
 echo "(If it fails here please comment This section and rerun)"
 sudo groupadd docker
 sudo usermod -aG docker $USER
-sudo newgrp docker
-sudo chown "$USER":"$USER" /home/"$USER"/.docker -R
-sudo chmod g+rwx "$HOME/.docker" -R
 
 # Testing docker working
 echo "Testing docker"
@@ -70,9 +68,9 @@ sudo chmod 600 $SECRETS_DIR
 
 # adding segregated network
 echo "Adding docker networks"
-docker network create -d ipvlan private_vlan
-docker network create -d ipvlan protected_vlan
-docker network create -d ipvlan public_vlan
+docker network create private_vlan
+docker network create protected_vlan
+docker network create public_vlan
 
 # adding common volumes
 echo "Adding docker volumes"

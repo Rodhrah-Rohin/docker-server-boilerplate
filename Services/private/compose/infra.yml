@@ -2,10 +2,6 @@ version: "3"
 name: "private_infra"
 
 volumes:
-  dockersocket:
-    external: true
-    name: "dockersocket"
-
   letsencrypt:
     external: true
     name: "letsencrypt"
@@ -18,10 +14,8 @@ networks:
   network_vlan:
     external: true
     name: "private_vlan"
-
   stack_vlan:
     name: "private_infra_vlan"
-    driver: ipvlan
 
 services:
   cfd:
