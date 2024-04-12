@@ -79,7 +79,8 @@ docker volume create --name backup
 
 # Setting up cloudflared for each network and portainer
 echo "Setting up cloudflare tunnels"
-echo "PORTAINER_PORT = $PORT" >> $SECRETS_DIR/private/$INFRA_STACK.env
+touch $SECRETS_DIR/$network/$INFRA_STACK.env
+echo "PORTAINER_PORT = $PORT" > $SECRETS_DIR/private/$INFRA_STACK.env
 for network in "private" "protected" "public"
 do
   read -sp "Paste in the cloudflared token for $network network: " token
