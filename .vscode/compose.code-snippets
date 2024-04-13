@@ -1,20 +1,20 @@
 {
-	"Docker top level volume template":{
+	"Docker Top Level Volume Template":{
 		"prefix": ["volume","compose-volume"],
 		"description":"Gives you the docker compose volume snippet",
 		"body": [
 			"",
 			"${1:'Service'}:",
-			"\tname: \"${3|private,protected,public|}_${2:$TM_FILENAME_BASE}_volume\"",
+			"\tname: \"${3|private,protected,public|}_${2:$TM_FILENAME_BASE}_$1_volume\"",
 			"\tdriver: local",
 			"\tdriver_opts:",
-			"\t\tdevice: \\$DATA_DIR/$3/$2/$1",
+			"\t\tdevice: \\$DATA_DIR/$3/$2/$1/",
 			"\t\to: bind",
 			"\t\ttype: local",
 			""
 		]
 	},
-	"Docker Service Template":{
+	"Docker Top Level Service Template":{
 		"prefix": ["service","compose-service"],
 		"description":"Gives you the docker compose service snippet",
 		"body": [
@@ -22,8 +22,8 @@
 			"\t${1:'Service'}:",
 			"\t\timage: \"customreg.com/user/image\"",
 			"\t\tcontainer_name: \"$3_$2_$1\"",
-			"\t\tdomainname: \"${4:'Domain'}\"",
-			"\t\thostname: \"$4\"",
+			"\t\tdomainname: \"$1.$2.$3.local\"",
+			"\t\thostname: \"$1.$2.$3\"",
 			"\t\tdepends_on:",
 			"\t\t\t- service1",
 			"\t\tlabels:",
@@ -43,10 +43,10 @@
 			"\t\t\t- letsencrypt:/etc/letsencrypt",
 			"\t\t\t- dockersocket:/var/run/docker.sock:ro",
 			"\t\t\t- backup:/var/backup",
-			"\t\t\t- \\$DATA_DIR/$3/$2/$1:/internal/mapping",
+			"\t\t\t- $1:/internal/mapping",
 			"\t\t\t- /any/other/external/source:internal/mapping",
 			"\t\texpose:",
-			"\t\t\t- \"80\"",
+			"\t\t\t- \\$${1/(.*)/${1:/upcase}/}_PORT",
 			"\t\tports:",
 			"\t\t\t- \"host:docker\"",
 			"\t\tnetworks:",
@@ -68,7 +68,7 @@
 			"\t\tlogging:",
 			"\t\t\tdriver: \"syslog\"",
 			"\t\thealthcheck:",
-			"\t\t\ttest: [\"CMD\", \"curl\", \"-f\", \"$4\"]",
+			"\t\t\ttest: [\"CMD\", \"curl\", \"-f\", \"https://localhost:\\$${1/(.*)/${1:/upcase}/}_PORT\"]",
 			"\t\t\tinterval: 1m30s",
 			"\t\t\ttimeout: 10s",
 			"\t\t\tretries: 3",
@@ -100,7 +100,7 @@
 			"\tdocker_socket:",
 			"\t\texternal: true",
 			"\t\tname: \"docker_socket\"",
-
+			"",
 			"\tletsencrypt:",
 			"\t\texternal: true",
 			"\t\tname: \"letsencrypt\"",
