@@ -73,9 +73,12 @@ docker network create protected_vlan
 docker network create public_vlan
 
 # adding common volumes
+mkdir -p /etc/letsencrypt
+mkdir -p /var/docker_data/backedup
 echo "Adding docker volumes"
-docker volume create --name letsencrypt
-docker volume create --name backup
+docker volume create --name docker_socket --driver local --opt type=local --opt o=bind --opt device=/var/run/docker.sock
+docker volume create --name letsencrypt --driver local --opt type=local --opt o=bind --opt device=/etc/letsencrypt
+docker volume create --name backup --driver local --opt type=local --opt o=bind --opt device=/var/docker_data/backedup
 
 # Setting up cloudflared for each network and portainer
 echo "Setting up cloudflare tunnels"

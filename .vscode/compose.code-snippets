@@ -1,7 +1,22 @@
 {
+	"Docker top level volume template":{
+		"prefix": ["volume","compose-volume"],
+		"description":"Gives you the docker compose volume snippet",
+		"body": [
+			"",
+			"${1:'Service'}:",
+			"\tname: \"${3|private,protected,public|}_${2:$TM_FILENAME_BASE}_volume\"",
+			"\tdriver: local",
+			"\tdriver_opts:",
+			"\t\tdevice: \\$DATA_DIR/$3/$2/$1",
+			"\t\to: bind",
+			"\t\ttype: local",
+			""
+		]
+	},
 	"Docker Service Template":{
 		"prefix": ["service","compose-service"],
-		"description":"Gives you the docker compose service snippet without the comments",
+		"description":"Gives you the docker compose service snippet",
 		"body": [
 			"",
 			"\t${1:'Service'}:",
@@ -26,7 +41,7 @@
 			"\t\t\t- \\$SECRETS_DIR/$3/$2/$1.env",
 			"\t\tvolumes: ",
 			"\t\t\t- letsencrypt:/etc/letsencrypt",
-			"\t\t\t- dockersocket:/var/run/docker.sock",
+			"\t\t\t- dockersocket:/var/run/docker.sock:ro",
 			"\t\t\t- backup:/var/backup",
 			"\t\t\t- \\$DATA_DIR/$3/$2/$1:/internal/mapping",
 			"\t\t\t- /any/other/external/source:internal/mapping",
@@ -82,6 +97,10 @@
 			"\tstack_data:",
 			"\t\tname: \"$1_$2_volume\"",
 			"",
+			"\tdocker_socket:",
+			"\t\texternal: true",
+			"\t\tname: \"docker_socket\"",
+
 			"\tletsencrypt:",
 			"\t\texternal: true",
 			"\t\tname: \"letsencrypt\"",
