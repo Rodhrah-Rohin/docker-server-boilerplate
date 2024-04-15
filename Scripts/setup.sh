@@ -14,12 +14,12 @@ read -p "Enter the Server Storage Space: " SERVER_STORAGE_TYPE
 read -p "Enter the Primary Domain(example.com): " PRIMARY_DOMAIN
 echo "COMPOSE RELATED DATA"
 read -p "Enter the path to the secrets/env folder:[/etc/docker/secrets]=> " SECRETS_DIR
-read -p "Enter the path to the data folder:[/var/docker_data/]=> " DATA_DIR
+read -p "Enter the path to the data folder:[/var/docker_data]=> " DATA_DIR
 read -p "Enter Portainer port:[9443]=> " PORT
 
 PORT=${PORT:-9443}
 SECRETS_DIR=${SECRETS_DIR:-'/etc/docker/secrets'}
-DATA_DIR=${DATA_DIR:-'/var/docker_data/'}
+DATA_DIR=${DATA_DIR:-'/var/docker_data'}
 
 mkdir -p $SECRETS_DIR
 mkdir -p $DATA_DIR
