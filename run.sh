@@ -35,38 +35,46 @@ echo "service upgrade/deploy process Initialized"
 
 echo "preparing for execution"
 
-echo "checking for upgrades for the server or its services"
-sudo apt-get upgrade -y
-sudo apt-get update -y
+read -p "Are the new stack and service variables set up? y/n" confirmation
+if [ $confirmation = "y" ]; then
+	echo "checking for upgrades for the server or its services"
+	sudo apt-get upgrade -y
+	sudo apt-get update -y
 
-# Explicitly define additional reusable network/s (optional)
-# each stack gets its own network additionally by default
-# 
+	# Explicitly define additional reusable network/s (optional)
+	# each stack gets its own network additionally by default
+	# 
 
-# Explicitly define additional reusable volumes (optional)
-# 
+	# Explicitly define additional reusable volumes (optional)
+	# 
 
-# __________initializing docker service setup
-runScope
+	# __________initializing docker service setup
+	runScope
 
-# _________Cleaning up the stale docker stuff
-echo "cleaning up"
+	# _________Cleaning up the stale docker stuff
+	echo "cleaning up"
 
-echo "removing stale/unused containers"
-docker container prune -f --filter "until=750h"
+	echo "removing stale/unused containers"
+	docker container prune -f --filter "until=750h"
 
-echo "removing stale/unused networks"
-docker network prune -f --filter "until=750h"
+	echo "removing stale/unused networks"
+	docker network prune -f --filter "until=750h"
 
-echo "removing stale/unused volumes"
-docker volume prune -f
+	echo "removing stale/unused volumes"
+	docker volume prune -f
 
-echo "removing stale/unused images"
-docker image prune -af --filter "until=750h"
+	echo "removing stale/unused images"
+	docker image prune -af --filter "until=750h"
 
-# ______________________________End and stats
-echo "service upgrade/deploy process Completed"
+	# ______________________________End and stats
+	echo "service upgrade/deploy process Completed"
 
-# echo "Displaying service list"
-docker ps -a
-# ____________________________________________
+	# echo "Displaying service list"
+	docker ps -a
+	# ____________________________________________
+else
+	cd ./Scripts
+	bash ./gensec.sh
+	bash ./genenv.sh
+	bash ./runstack.sh
+fi
