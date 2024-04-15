@@ -21,7 +21,8 @@ do
         break;
       fi
       # else ask the file details
-      mkdir -p $SECRETS_DIR/$network/$stack/$service    
+      mkdir -p $SECRETS_DIR/$network/$stack/$service
+      mkdir -p $DATA_DIR/$network/$stack/$service
       while [ true ]; # File Loop
       do
         read -p "Enter the secret key/name or empty to exit: " name
