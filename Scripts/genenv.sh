@@ -25,6 +25,7 @@ do
       if [ ${service:-"n"} = "n" ]; then
         break;
       fi
+      mkdir -p $DATA_DIR/$network/$stack/$service
       # else as the file details
       listOfChangedFiles+=("\$SECRETS_DIR/$network/$stack/$service.env")
       echo ""
