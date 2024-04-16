@@ -14,7 +14,7 @@ if [ $c = "y" ]; then
 		fi
 		# create the stack list
 		declare -a stacks=()
-		for file in `ls ../Services/$network/compose/`; do
+		for file in `ls $PROJECT_DIR/Services/$network/compose/`; do
 			stacks+=( "${file%.yml}" )
 		done
 		# add exit condition to it
@@ -53,7 +53,7 @@ if [ $c = "y" ]; then
 			done 
 			echo "Running the $stack stack"
 			# run the docker compose command with the created env(may be empty)
-			docker compose --env-file $stack_env_path -p "${network}_${stack}" --file ../Services/$network/compose/$stack.yml up -d 
+			docker compose --env-file $stack_env_path -p "${network}_${stack}" --file $PROJECT_DIR/Services/$network/compose/$stack.yml up -d 
 			echo ""
 		done
 		echo ""

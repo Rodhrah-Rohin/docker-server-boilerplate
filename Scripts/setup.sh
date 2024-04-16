@@ -2,6 +2,7 @@
 # General variables
 SCOPES=("private" "protected" "public")
 INFRA_STACK='infra'
+PWD=`pwd`
 
 # Setup Server
 # add Server info
@@ -15,11 +16,13 @@ read -p "Enter the Primary Domain(example.com): " PRIMARY_DOMAIN
 echo "COMPOSE RELATED DATA"
 read -p "Enter the path to the secrets/env folder:[/etc/docker/secrets]=> " SECRETS_DIR
 read -p "Enter the path to the data folder:[/var/docker_data]=> " DATA_DIR
+read -p "Enter the path to the project:[$PWD]=> " PROJECT_DIR
 read -p "Enter Portainer port:[9443]=> " PORT
 
 PORT=${PORT:-9443}
 SECRETS_DIR=${SECRETS_DIR:-'/etc/docker/secrets'}
 DATA_DIR=${DATA_DIR:-'/var/docker_data'}
+PROJECT_DIR=${PROJECT_DIR:-$PWD}
 
 mkdir -p $SECRETS_DIR
 mkdir -p $DATA_DIR
@@ -91,6 +94,7 @@ do
   touch $SECRETS_DIR/$network/$INFRA_STACK/cfd.env
   echo "TUNNEL_TOKEN = $token" >> $SECRETS_DIR/$network/$INFRA_STACK/cfd.env
   echo "The token is stored in '\$SECRETS_DIR/$network/$INFRA_STACK/cfd.env'"
+  mkdir -p $PROJECT_DIR/Services/$network/logs
 done
 
 # Export variables
@@ -102,6 +106,7 @@ echo "export SERVER_STORAGE_TYPE=\"$SERVER_STORAGE_TYPE\"" >> ~/.bashrc
 echo "export PRIMARY_DOMAIN=\"$PRIMARY_DOMAIN\"" >> ~/.bashrc
 echo "export SECRETS_DIR=\"$SECRETS_DIR\"" >> ~/.bashrc
 echo "export DATA_DIR=\"$DATA_DIR\"" >> ~/.bashrc
+echo "export PROJECT_DIR=\"$PROJECT_DIR\"" >> ~/.bashrc
 echo "export DOCKER=\"$DOCKER\"" >> ~/.bashrc
 echo "export DOCKER_COMPOSE=\"$DOCKER_COMPOSE\"" >> ~/.bashrc
 
