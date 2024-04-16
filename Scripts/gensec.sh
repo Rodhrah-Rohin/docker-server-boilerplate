@@ -1,45 +1,64 @@
 #!/bin/bash
 listOfChangedFiles=()
 
+# ask for the network selection
+echo "Select a network scope"
 select network in "private" "protected" "public" "exit";
 do
+  # if option is exit the exit network loop
   if [ $network = "exit" ]; then
-    break
+    break;
   fi
-  # else ask the stack
-  while [ true ]; # Stack Loop
+  # create the stack list
+  declare -a stacks=()
+	for file in `ls ../Services/$network/compose/`; do
+		stacks+=( "${file%.yml}" )
+	done
+  # add exit condition to it
+	stacks+=("exit")
+  # display the stack list for selection
+  echo "Select a stack"
+	select stack in ${stacks[@]}; #Stack loop
   do
-    read -p "Enter the stack name or empty to exit: " stack
-    if [ ${stack:-"n"} = "n" ]; then
-      break
+    # if option is exit the exit stack loop
+    if [ $stack = "exit" ]; then
+      break;
     fi
-    # else ask the service
     while [ true ]; # Service Loop
     do
-      read -p "Enter the service name or empty to exit: " service
+      # ask for the service name
+      read -p "Enter the service name in $stack stack or empty to exit: " service
+      # if nothing is entered the exit services loop
       if [ ${service:-"n"} = "n" ]; then
         break;
       fi
-      # else ask the file details
+      # create the service secrets dir
       mkdir -p $SECRETS_DIR/$network/$stack/$service
+      # create the service data dir
       mkdir -p $DATA_DIR/$network/$stack/$service
       while [ true ]; # File Loop
       do
+        # ask for the secrets' details
         read -p "Enter the secret key/name or empty to exit: " name
         read -sp "Enter the secret value for $name: " value
+        # if name is empty exit the file loop
         if [ ${name:-"n"} = "n" ]; then
           break;
         fi
-        # else create the secret file
-        echo $value > $SECRETS_DIR/$network/$stack/$service/$name
+        # declare the secret path
+        service_secret_path=$SECRETS_DIR/$network/$stack/$service/$name
+        # create a new secret file/overwrite the previous one if it exists
+        touch $service_secret_path
+        # write to the created file
+        echo $value > $service_secret_path
         listOfChangedFiles+=("\$SECRETS_DIR/$network/$stack/$service/$name")
         echo ""
       done
       echo ""
     done
-    echo ""
+    echo "Select a stack(press enter to diplay options)"
   done
-  echo ""
+  echo "Select a network scope(press enter to diplay options)"
 done
 
 # ensuring all created secrets are only visible to root

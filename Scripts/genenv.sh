@@ -1,50 +1,70 @@
 #!/bin/bash
 listOfChangedFiles=()
 
+# ask for the network selection
+echo "Select a network scope"
 select network in "private" "protected" "public" "exit";
 do
+  # if option is exit the exit network loop
   if [ $network = "exit" ]; then
-    break
+    break;
   fi
-  # else ask the stack
-  echo ""
-  
-  while [ true ]; # Stack Loop
+  # create the stack list
+  declare -a stacks=()
+	for file in `ls ../Services/$network/compose/`;
   do
-    read -p "Enter the stack name or empty to exit: " stack
-    if [ ${stack:-"n"} = "n" ]; then
-      break
+		stacks+=( "${file%.yml}" )
+	done
+  # add exit condition to it
+	stacks+=("exit")
+  # display the stack list for selection
+  echo "Select a stack"
+	select stack in ${stacks[@]}; #Stack loop
+  do
+    # if option is exit the exit stack loop
+    if [ $stack = "exit" ]; then
+      break;
     fi
     # else ask the service
     mkdir -p $SECRETS_DIR/$network/$stack/
     echo ""
-    
     while [ true ]; # Service Loop
     do
-      read -p "Enter the service name or empty to exit: " service
+      # ask for the service name
+      read -p "Enter the service name in $stack stack or empty to exit: " service
+      # if nothing is entered the exit services loop
       if [ ${service:-"n"} = "n" ]; then
         break;
       fi
+      # declare the service env path
+      service_env_path=$SECRETS_DIR/$network/$stack/$service.env
+      # create the service data dir
       mkdir -p $DATA_DIR/$network/$stack/$service
-      # else as the file details
       listOfChangedFiles+=("\$SECRETS_DIR/$network/$stack/$service.env")
       echo ""
-      
+      # create the env file if it doesnt exist
+      if ! test -f $service_env_path;
+		  then
+        touch $service_env_path
+		  fi
       while [ true ]; # File Loop
       do
-        read -p "Enter the ENV key/name or empty to exit: " name
+        # ask for the env details
+        read -p "Enter the ENV key/name for $service service or empty to exit: " name
         read -sp "Enter the ENV value for $name: " value
+        # if name is empty exit the file loop
         if [ ${name:-"n"} = "n" ]; then
           break;
         fi
-        echo "$name = \"$value\"" >> $SECRETS_DIR/$network/$stack/$service.env
+        # else add the data to the service env file
+        echo "$name = \"$value\"" >> $service_env_path
         echo ""
       done
       echo ""
     done
-    echo ""
+    echo "Select a stack(press enter to diplay options)"
   done
-  echo ""
+  echo "Select a network scope(press enter to diplay options)"
 done
 echo ""
 
