@@ -11,7 +11,7 @@ do
   fi
   # create the stack list
   declare -a stacks=()
-	for file in `ls ../Services/$network/compose/`;
+	for file in `ls $PROJECT_DIR/Services/$network/compose/`;
   do
 		stacks+=( "${file%.yml}" )
 	done

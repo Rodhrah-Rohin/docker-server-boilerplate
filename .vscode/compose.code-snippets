@@ -4,7 +4,7 @@
 		"description":"Gives you the docker compose volume snippet",
 		"body": [
 			"",
-			"${1:'Service'}:",
+			"${1:'Service'}_data:",
 			"\tname: \"${3|private,protected,public|}_${2:$TM_FILENAME_BASE}_$1_volume\"",
 			"\tdriver: local",
 			"\tdriver_opts:",

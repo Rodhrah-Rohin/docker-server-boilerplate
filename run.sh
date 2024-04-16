@@ -7,11 +7,10 @@ if [ $c = "y" ]; then
 		for network in "private" "protected" "public";
 		do
 			echo "setting up $network services"
-			cd ./Services/$network/compose/
+			cd $PROJECT_DIR/Services/$network/compose/
 			for filename in `ls .`; do
 				runDockerCompose $network $filename
 			done
-			cd ../../../
 		done
 	}
 	
