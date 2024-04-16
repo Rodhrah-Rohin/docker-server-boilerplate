@@ -18,6 +18,9 @@ networks:
   stack_vlan:
     name: "public_infra"
 
+  cfd_public_connector:
+    name: "public_infra_cfd_connector"
+
 services:
 
   cfd:
@@ -35,5 +38,6 @@ services:
     networks:
       - network_vlan
       - stack_vlan
+      - cfd_public_connector
     cpu_count: 1
     mem_limit: 512m
