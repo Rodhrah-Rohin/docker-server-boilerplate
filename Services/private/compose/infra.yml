@@ -16,6 +16,8 @@ networks:
     name: "private_vlan"
   stack_vlan:
     name: "private_infra_vlan"
+  cfd_private_connector:
+    name: "private_infra_cfd_connector"
 
 services:
   cfd:
@@ -33,6 +35,7 @@ services:
     networks:
       - network_vlan
       - stack_vlan
+      - cfd_private_connector
     cpu_count: 1
     mem_limit: 512m
 
@@ -56,6 +59,7 @@ services:
     networks:
       - network_vlan
       - stack_vlan
+      - cfd_private_connector
     cpu_count: 1
     mem_limit: 512m
     healthcheck:
