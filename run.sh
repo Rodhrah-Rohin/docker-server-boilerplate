@@ -1,42 +1,42 @@
 #!/bin/bash
 
-# Goes through each scope and runs the stacks
-function runScope {
-	for network in "private" "protected" "public";
-	do
-		echo "setting up $network services"
-		cd ./Services/$network/compose/
-		for filename in `ls .`; do
-			runDockerCompose $network $filename
+read -p "Are the service variables set up? y/n: " c
+if [ $c = "y" ]; then
+	# Goes through each scope and runs the stacks
+	function runScope {
+		for network in "private" "protected" "public";
+		do
+			echo "setting up $network services"
+			cd ./Services/$network/compose/
+			for filename in `ls .`; do
+				runDockerCompose $network $filename
+			done
+			cd ../../../
 		done
-		cd ../../../
-	done
-}
- 
-# Runs the given docker compose file that is passed
-# $1 Network Scope
-# $2 File name Stack.yml
-function runDockerCompose {
-	NETWORK=$1
-	FILENAME=$2
-	STACK="${filename%.*}"
-	echo "trying to deploy $STACK stack"
-	if test -f $SECRETS_DIR/$NETWORK/$STACK.env;
-	then
-		docker compose --env-file $SECRETS_DIR/$NETWORK/$STACK.env -p "${NETWORK}_${STACK}" --file $FILENAME up -d 
-	else
-		docker compose -p "${NETWORK}_${STACK}" --file $FILENAME up -d
-	fi
-	echo "$STACK stack deployed successfully"
-}
+	}
+	
+	# Runs the given docker compose file that is passed
+	# $1 Network Scope
+	# $2 File name Stack.yml
+	function runDockerCompose {
+		NETWORK=$1
+		FILENAME=$2
+		STACK="${filename%.*}"
+		echo "trying to deploy $STACK stack"
+		if test -f $SECRETS_DIR/$NETWORK/$STACK.env;
+		then
+			docker compose --env-file $SECRETS_DIR/$NETWORK/$STACK.env -p "${NETWORK}_${STACK}" --file $FILENAME up -d 
+		else
+			docker compose -p "${NETWORK}_${STACK}" --file $FILENAME up -d
+		fi
+		echo "$STACK stack deployed successfully"
+	}
 
-# ___________Initializing system level config
-echo "service upgrade/deploy process Initialized"
+	# ___________Initializing system level config
+	echo "service upgrade/deploy process Initialized"
 
-echo "preparing for execution"
+	echo "preparing for execution"
 
-read -p "Are the new stack and service variables set up? y/n" confirmation
-if [ $confirmation = "y" ]; then
 	echo "checking for upgrades for the server or its services"
 	sudo apt-get upgrade -y
 	sudo apt-get update -y
@@ -74,7 +74,10 @@ if [ $confirmation = "y" ]; then
 	# ____________________________________________
 else
 	cd ./Scripts
+	echo "Running service secrets generation script"
 	bash ./gensec.sh
+	echo "Running service envs generation script"
 	bash ./genenv.sh
+	echo "Running stack runner script"
 	bash ./runstack.sh
 fi
