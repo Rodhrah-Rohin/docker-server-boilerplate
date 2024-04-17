@@ -14,8 +14,10 @@ _JUST ADD THE KEYS NO VALUES REQUIRED_
 - ENV_KEY - description and necessity
 
 ## Any additional details you want to add
+```markdown
+any additional details
+```
 
 ## Checklist before requesting a review
 - [ ] The domains associated are created and configured appropriately in cloudflared
-- [ ] The secrets and Env variables needed for the stack and its services are added to the server
 - [ ] Any additional configurations needed/mentioned are completed

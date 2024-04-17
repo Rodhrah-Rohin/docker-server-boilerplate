@@ -27,7 +27,7 @@ any additional details
 ## Checklist before requesting a review
 
 - [ ] I have performed a self-review of my code
-- [ ] I have followed the security guidlines and given minimum amount of access to the service
+- [ ] I have followed the security guidelines and given minimum amount of access to the service
 - [ ] I have added all the needed secrets and env keys to the PR description
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] My changes generate no new warnings
