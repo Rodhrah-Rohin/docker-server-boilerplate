@@ -47,6 +47,9 @@ if [ $c = "y" ]; then
 	# Explicitly define additional reusable volumes (optional)
 	# 
 
+	# Updating docker data permissions
+	chmod -R 0777 $DATA_DIR
+
 	# __________initializing docker service setup
 	runScope
 
