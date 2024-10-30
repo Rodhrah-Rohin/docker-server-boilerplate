@@ -22,7 +22,7 @@
 			"\t${1:'Service'}:",
 			"\t\timage: \"customreg.com/user/image\"",
 			"\t\tcontainer_name: \"$3_$2_$1\"",
-			"\t\tdomainname: \"$1.$2.$3.local\"",
+			"\t\tdomainname: \"\\$PRIMARY_DOMAIN.local\"",
 			"\t\thostname: \"$1.$2.$3\"",
 			"\t\tdepends_on:",
 			"\t\t\t- service1",
