@@ -1,13 +1,16 @@
 configs/**
-!configs/readme.md
+!configs/.empty
 
 data/**
-!data/readme.md
+!data/.empty
 
 logs/**
-!logs/readme.md
+!logs/.empty
 
 secrets/**
-!secrets/readme.md
+!secrets/.empty
+
+services/**
+!services/.empty
 
 # anything else to ignore
