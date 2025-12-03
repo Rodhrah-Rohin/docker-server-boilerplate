@@ -1,129 +1,199 @@
 #!/bin/bash
-# General variables
-SCOPES=("private" "protected" "public")
-INFRA_STACK='infra'
-PWD=`pwd`
-# ln -s /var/lib/docker/containers/ ${PWD}/logs/
 
-# Setup Server
-# add Server info
-echo "SERVER RELATED DATA"
-read -p "Enter the Server Name: " SERVER_NAME
-read -p "Enter the Server Code: " SERVER_CODE
-read -p "Enter the Server CPU Count: " SERVER_CPU_COUNT
-read -p "Enter the Server RAM amount: " SERVER_RAM
-read -p "Enter the Server Storage Space: " SERVER_STORAGE_TYPE
-read -p "Enter the Primary Domain(example.com): " PRIMARY_DOMAIN
-echo "COMPOSE RELATED DATA"
-read -p "Enter the path to the secrets/env folder:[/etc/docker/secrets]=> " SECRETS_DIR
-read -p "Enter the path to the data folder:[/var/docker_data]=> " DATA_DIR
-read -p "Enter the path to the project:[$PWD]=> " PROJECT_DIR
-read -p "Enter Portainer port:[9443]=> " PORT
+# Server Setup Automation Script
 
-PORT=${PORT:-9443}
-SECRETS_DIR=${SECRETS_DIR:-'/etc/docker/secrets'}
-DATA_DIR=${DATA_DIR:-'/var/docker_data'}
-PROJECT_DIR=${PROJECT_DIR:-$PWD}
+clear
 
-mkdir -p $SECRETS_DIR
-mkdir -p $DATA_DIR
+# Validate root privileges [web:1][web:3]
+if [[ $EUID -ne 0 ]]; then
+   echo "ERROR: This script must be run as root or with sudo!"
+   exit 1
+fi
 
-# Add Docker's official GPG key:
-echo "Installing Docker and Docker Compose..."
-sudo apt-get upgrade
-sudo apt-get update
-sudo apt-get install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo "=================================="
+echo "  SERVER SETUP INITIALIZATION"
+echo "=================================="
+echo ""
 
-# Add the repository to Apt sources:
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
+# Setup variables
+PWD=$(pwd)
+echo "Working directory: $PWD"
 
-# Install docker
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+echo ""
+echo "=================================="
+echo "        USER INPUT CONFIGURATION"
+echo "=================================="
 
-# Adding Docker group
-echo "Adding docker user and permissions"
-echo "(If it fails here please comment This section and rerun)"
-sudo groupadd docker
-sudo usermod -aG docker $USER
+# User inputs with defaults
+read -p "Server name (default: $(hostname)): " SERVER_NAME
+SERVER_NAME=${SERVER_NAME:-$(hostname)}
 
-# Testing docker working
-echo "Testing docker"
-docker run -d hello-world
-docker ps
-DOCKER=$(docker --version)
-DOCKER_COMPOSE=$(docker compose version)
+read -p "Project folder (default: $PWD): " PROJECT_FOLDER
+PROJECT_FOLDER=${PROJECT_FOLDER:-$PWD}
 
-# Enable docker on startup
-echo "Adding docker to start up"
-sudo systemctl enable docker.service
-sudo systemctl enable containerd.service
+read -p "Data folder (default: $PWD/data): " DATA_FOLDER
+DATA_FOLDER=${DATA_FOLDER:-$PWD/data}
 
-# Setting up docker secret folder
-echo "Setting up the secrets folder"
-sudo chown root:root $SECRETS_DIR
-sudo chmod 600 $SECRETS_DIR
+read -p "Logs folder (default: $PWD/logs): " LOGS_FOLDER
+LOGS_FOLDER=${LOGS_FOLDER:-$PWD/logs}
 
-# adding segregated network
-echo "Adding docker networks"
-docker network create private_vlan
-docker network create protected_vlan
-docker network create public_vlan
+read -p "Secrets folder (default: $PWD/secrets): " SECRETS_FOLDER
+SECRETS_FOLDER=${SECRETS_FOLDER:-$PWD/secrets}
 
-# adding common volumes
-mkdir -p /etc/letsencrypt
-mkdir -p /var/docker_data/backedup
-echo "Adding docker volumes"
-docker volume create --name docker_socket --driver local --opt type=local --opt o=bind --opt device=/var/run/docker.sock
-docker volume create --name letsencrypt --driver local --opt type=local --opt o=bind --opt device=/etc/letsencrypt
-docker volume create --name backup --driver local --opt type=local --opt o=bind --opt device=/var/docker_data/backedup
+read -p "Portainer port (default: 9443): " PORTAINER_PORT
+PORTAINER_PORT=${PORTAINER_PORT:-9443}
 
-# Setting up cloudflared for each network and portainer
-echo "Setting up cloudflare tunnels"
-touch $SECRETS_DIR/$network/$INFRA_STACK.env
-echo "PORTAINER_PORT = $PORT" > $SECRETS_DIR/private/$INFRA_STACK.env
-for network in "private" "protected" "public"
-do
-  read -sp "Paste in the cloudflared token for $network network: " token
-  mkdir -p $SECRETS_DIR/$network/$INFRA_STACK
-  touch $SECRETS_DIR/$network/$INFRA_STACK/cfd.env
-  echo "TUNNEL_TOKEN = $token" >> $SECRETS_DIR/$network/$INFRA_STACK/cfd.env
-  echo "The token is stored in '\$SECRETS_DIR/$network/$INFRA_STACK/cfd.env'"
-  mkdir -p $PROJECT_DIR/Services/$network/logs
-done
+read -p "Swarm join command (default: empty): " SWARM_JOIN_CMD
+SWARM_JOIN_CMD=${SWARM_JOIN_CMD:-""}
 
-# Export variables
-echo "export SERVER_NAME=\"$SERVER_NAME\"" >> ~/.bashrc
-echo "export SERVER_CODE=\"$SERVER_CODE\"" >> ~/.bashrc
-echo "export SERVER_CPU_COUNT=\"$SERVER_CPU_COUNT\"" >> ~/.bashrc
-echo "export SERVER_RAM=\"$SERVER_RAM\"" >> ~/.bashrc
-echo "export SERVER_STORAGE_TYPE=\"$SERVER_STORAGE_TYPE\"" >> ~/.bashrc
-echo "export PRIMARY_DOMAIN=\"$PRIMARY_DOMAIN\"" >> ~/.bashrc
-echo "export SECRETS_DIR=\"$SECRETS_DIR\"" >> ~/.bashrc
-echo "export DATA_DIR=\"$DATA_DIR\"" >> ~/.bashrc
-echo "export PROJECT_DIR=\"$PROJECT_DIR\"" >> ~/.bashrc
-echo "export DOCKER=\"$DOCKER\"" >> ~/.bashrc
-echo "export DOCKER_COMPOSE=\"$DOCKER_COMPOSE\"" >> ~/.bashrc
+read -p "Cloudflare tunnel token (compose) (default: empty): " CF_TOKEN_COMPOSE
+CF_TOKEN_COMPOSE=${CF_TOKEN_COMPOSE:-""}
 
-# Clearing out the history of inputs
-echo "Cleaning up and setup details"
+read -p "Cloudflare tunnel token (swarm) (default: empty): " CF_TOKEN_SWARM
+CF_TOKEN_SWARM=${CF_TOKEN_SWARM:-""}
+
+echo ""
+echo "=================================="
+echo "     CONFIGURATION SUMMARY"
+echo "=================================="
+echo "Server Name: $SERVER_NAME"
+echo "Project Folder: $PROJECT_FOLDER"
+echo "Data Folder: $DATA_FOLDER"
+echo "Logs Folder: $LOGS_FOLDER"
+echo "Secrets Folder: $SECRETS_FOLDER"
+echo "Portainer Port: $PORTAINER_PORT"
+echo "Swarm Join: ${SWARM_JOIN_CMD:+Provided}"
+echo "CF Token Compose: ${CF_TOKEN_COMPOSE:+Provided}"
+echo "CF Token Swarm: ${CF_TOKEN_SWARM:+Provided}"
+echo ""
+
+# System update and upgrade
+echo "=================================="
+echo "         SYSTEM UPDATE"
+echo "=================================="
+apt update && apt upgrade -y
+
+# Set server hostname
+echo ""
+echo "=================================="
+echo "        SETTING HOSTNAME"
+echo "=================================="
+hostnamectl set-hostname "$SERVER_NAME"
+echo "127.0.1.1 $SERVER_NAME" >> /etc/hosts
+
+# Create Cloudflare .env files
+echo ""
+echo "=================================="
+echo "     CREATING CFD .ENV FILES"
+echo "=================================="
+
+# Create compose CFD dirs and file
+mkdir -p "$SECRETS_FOLDER/common/infra/compose"
+if [[ -n "$CF_TOKEN_COMPOSE" ]]; then
+    echo "CFD_TOKEN=$CF_TOKEN_COMPOSE" > "$SECRETS_FOLDER/common/infra/compose/cfd.env"
+    echo "✓ Compose CFD token configured"
+else
+    touch "$SECRETS_FOLDER/common/infra/compose/cfd.env"
+    echo "⚠ No compose CFD token provided"
+fi
+
+# Create swarm CFD dirs and file
+mkdir -p "$SECRETS_FOLDER/common/infra/swarm"
+if [[ -n "$CF_TOKEN_SWARM" ]]; then
+    echo "CFD_TOKEN=$CF_TOKEN_SWARM" > "$SECRETS_FOLDER/common/infra/swarm/cfd.env"
+    echo "✓ Swarm CFD token configured"
+else
+    touch "$SECRETS_FOLDER/common/infra/swarm/cfd.env"
+    echo "⚠ No swarm CFD token provided"
+fi
+
+# Install Docker and Docker Compose
+echo ""
+echo "==========================================="
+echo "      INSTALLING DOCKER+DOCKER COMPOSE"
+echo "==========================================="
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+rm get-docker.sh
+
+# Install Docker Compose (standalone)
+curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+
+# Enable Docker services
+systemctl enable docker
+systemctl enable containerd
+systemctl start docker
+
+# Docker Swarm setup
+echo ""
+echo "=================================="
+echo "        DOCKER SWARM"
+echo "=================================="
+if [[ -n "$SWARM_JOIN_CMD" ]]; then
+    echo "Joining existing swarm..."
+    eval "$SWARM_JOIN_CMD"
+    SWARM_MODE="joined"
+else
+    echo "Initializing new swarm..."
+    docker swarm init --advertise-addr $(hostname -i)
+    SWARM_MODE="initialized"
+fi
+
+# Symlink Docker logs
+mkdir -p "$LOGS_FOLDER"
+ln -sf /var/lib/docker/containers "$LOGS_FOLDER/docker-containers"
+
+# Add variables to bashrc
+echo ""
+echo "=================================="
+echo "        ENVIRONMENT SETUP"
+echo "=================================="
+cat >> /root/.bashrc << EOF
+
+# Server Setup Variables
+export PROJECT_FOLDER="$PROJECT_FOLDER"
+export DATA_FOLDER="$DATA_FOLDER" 
+export LOGS_FOLDER="$LOGS_FOLDER"
+export SECRETS_FOLDER="$SECRETS_FOLDER"
+export PORTAINER_PORT="$PORTAINER_PORT"
+export SERVER_NAME="$SERVER_NAME"
+EOF
+
+# Clear screen and history
 clear
 history -c
 
-# Outputs
-echo "Docker Version - $DOCKER"
-echo "Docker Compose Version - $DOCKER_COMPOSE"
-echo "Check here which Compose version are compatible https://docs.docker.com/compose/compose-file/compose-versioning/#compatibility-matrix"
+# Display versions and status
+echo "=================================="
+echo "         SETUP COMPLETED!"
+echo "=================================="
+echo ""
+echo "Docker version:"
+docker --version
+echo ""
+echo "Docker Compose version:" 
+docker-compose --version
+echo ""
+if [[ "$SWARM_MODE" == "joined" ]]; then
+    echo "Swarm: Joined existing cluster"
+else
+    echo "Swarm: New cluster initialized"
+    echo ""
+    echo "Manager join token:"
+    docker swarm join-token manager
+    echo ""
+    echo "Worker join token:"
+    docker swarm join-token worker
+fi
 
-# Notes
-echo "Use the secrets.sh file to quickly create secrets"
-echo "Please do go through the readme files"
-echo "Please do go through the guidelines mentioned"
-echo "Please reboot the server for the changes to take effect"
-
+echo ""
+echo "=================================="
+echo "           NEXT STEPS"
+echo "=================================="
+echo ""
+echo "1. Read through the README files in $PROJECT_FOLDER"
+echo "2. REBOOT the server"
+echo ""
+echo "Setup completed successfully! 🚀"
+echo "=================================="
