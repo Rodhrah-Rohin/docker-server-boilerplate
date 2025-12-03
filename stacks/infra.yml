@@ -1,0 +1,120 @@
+name: "common_infra"
+
+volumes:
+  app_data:
+    name: "common_infra_app_volume"
+    driver: local
+    driver_opts:
+      device: $DATA_DIR/common/infra/app/
+      o: bind
+      type: local
+
+networks:
+  infra_common_connector:
+    external: true
+    name: "common_infra_connector"
+
+services:
+  app:
+    # informative
+    image: "common_infra_app_image:latest"
+    container_name: "common_infra_app"
+    hostname: "common_infra_app_host"
+    aliases:
+      - "app.common.infra"
+    description: "A UI to manage and monitor docker stacks services"
+    domainname: "common.infra.app.local"
+    labels:
+      com.portainer.infra.commin.description: "Container description"
+      com.portainer.infra.commin.justification: "Need for this container"
+
+    # control
+    privileged: false
+    restart: always
+    entrypoint: /code/entrypoint.sh
+    command: ls
+    depends_on:
+      app2:
+        condition: service_healthy
+        restart: always
+        required: true
+    deploy:
+      endpoint_mode: vip
+      mode:
+        replicated:
+          replicas: 2
+        global: false
+      placement:
+        constraints:
+          - node.role == worker
+      labels:
+        com.portainer.infra.commin.description: "Service description"
+        com.portainer.infra.commin.justification: "Justification for this service"
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+      update_config:
+        parallelism: 2
+        delay: 10s
+        failure_action: rollback
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+    # environment
+    environment:
+      - ENV_VAR=example_value
+    env_file:
+      - $SECRETS_DIR/common/infra/app.env
+
+    # networking
+    network_mode: bridge
+    networks:
+      - infra_common_connector
+    ports:
+      - "8080:80"
+    expose:
+      - "80"
+    dns:
+      - "1.1.1.1"
+      - "8.8.8.8"
+
+    # storage
+    storage_opt:
+      size: "1G"
+    volumes:
+      - app_data:/data
+
+    # logs
+    attach: true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost/ || exit 1"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # hardware
+    cpu_count: 1
+    cpu_percent: 100
+    mem_limit: 512M
+    mem_reservation: 256M
+
+    # capabilities
+    cap_add:
+      - ALL

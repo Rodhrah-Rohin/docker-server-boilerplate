@@ -3,6 +3,7 @@
 SCOPES=("private" "protected" "public")
 INFRA_STACK='infra'
 PWD=`pwd`
+# ln -s /var/lib/docker/containers/ ${PWD}/logs/
 
 # Setup Server
 # add Server info
