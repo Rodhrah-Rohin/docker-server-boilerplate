@@ -66,7 +66,31 @@
 		],
 		"description": "A high level docker swarm network snippet to connect to existing networks"
 	},
-	// service level
+	// service level: init
+	"docker swarm init/info section": {
+		"prefix": [
+			"init",
+			"info",
+			"dsinfo",
+			"swarminfo",
+			"initswarm"
+		],
+		"body": [
+			"",
+			"\t$1:",
+			"\t\t# info",
+			"\t\timage: \"${5:custom_image}:${6:latest}\"",
+			"\t\tcontainer_name: \"${8:${TM_DIRECTORY/.*[\\\\\\/](.*)$/$1/}}_${7:${TM_FILENAME_BASE/^([^\\.]+).*/$1/}}_${1:app}\"",
+			"\t\thostname: \"$1_$7_$8\"",
+			"\t\tdomainname: \"$1.${2:example.com}\"",
+			"\t\taliases:",
+			"\t\t\t- \"$1.$7.$8\"",
+			"\t\t\t- \"$1.$2\"",
+			"\t\tdescription: \"${3:A generic description for the service}\"",
+			""
+		],
+		"description": "The informative and initialization section for the swarm"
+	},
 	// service level: environment
 	"docker swarm environment section": {
 		"prefix": [
