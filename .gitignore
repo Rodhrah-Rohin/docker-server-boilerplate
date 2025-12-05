@@ -1,16 +1,20 @@
 configs/**
 !configs/.empty
 
-data/**
-!data/.empty
+data/compose/**
+!data/compose/.empty
+data/swarm/**
+!data/swarm/.empty
 
 logs/**
 !logs/.empty
 
-secrets/**
-!secrets/.empty
+secrets/compose/**
+!secrets/compose/.empty
+secrets/swarm/**
+!secrets/swarm/.empty
 
 services/**
-!services/.empty
+!services/readme.md
 
 # anything else to ignore

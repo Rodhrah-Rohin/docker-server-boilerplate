@@ -13,7 +13,9 @@ This guide explains the available snippet prefixes you can type to quickly inser
         - `${1}`: Group folder name from current directory
         - `${2}`: Base filename without extension
 2. **Compose New Local Volume (file level: volume)**
+    - Prefixes: `nlv`
     - Prefixes: `cnlv`, `composenewlocalvolume`
+    - Prefixes: `snlv`, `swarmnewlocalvolume` (for swarm)
     - Description: Defines a new local volume with a name derived from folder, filename, and service name.
     - Variables:
         - `$1`: Service or volume identifier (e.g., "app")
@@ -22,19 +24,25 @@ This guide explains the available snippet prefixes you can type to quickly inser
         - `${1}_data`: Volume key name
         - Uses driver options with `device` bound to path `$DATA_DIR/...`
 3. **Compose Existing Local Volume (file level: volume)**
+    - Prefixes: `elv`
     - Prefixes: `celv`, `composeexistinglocalvolume`
+    - Prefixes: `selv`, `swarmexistinglocalvolume` (for swarm)
     - Description: Connects to an existing external volume by name.
     - Variables:
         - Same as "Compose New Local Volume" for naming and binding.
 4. **Compose New Local Network (file level: network)**
+    - Prefixes: `nln`
     - Prefixes: `cnln`, `composenewlocalnetwork`
+    - Prefixes: `snln`, `swarmnewlocalnetwork` (for swarm)
     - Description: Creates a new Docker network with customizable settings and placeholders for attachable and labels.
     - Variables:
         - `$1`: Network identifier
         - `${2}`: Folder name
         - `${1}`: Filename base (used again for network name)
 5. **Compose Existing Local Network (file level: network)**
+    - Prefixes: `eln`
     - Prefixes: `celn`, `composeexistinglocalnetwork`
+    - Prefixes: `seln`, `swarmexistinglocalnetwork` (for swarm)
     - Description: Connects to an existing external network.
     - Variables:
         - Same as new network for naming.
@@ -53,6 +61,9 @@ This guide explains the available snippet prefixes you can type to quickly inser
         - `${4}`: Justification for service
         - `${5}`, `${6}`: Image and tag
         - `${7}`, `${8}`: Filename base and directory for naming container usage
+
+> Before proceeding further copy your Service name as further steps use clipboard  to autofill fields 
+
 7. **Docker Service Control Section**
     - Prefixes: `control`, `dcscontrol`, `servicecontrol`
     - Description: Controls privileges, restart policies, dependencies with conditional restart and requirement flags.
@@ -62,6 +73,17 @@ This guide explains the available snippet prefixes you can type to quickly inser
         - `${3}`: dependency service name
         - `${4}`: dependency condition
         - `${5}`, `${6}`: restart and required flags for dependency
+
+        7.1 **Docker Swarm Deploy Section**
+          - Prefixes: `swarm`, `deploy`, `dcsswarm`, `dcsdeploy`, `servicedeploy`, `serviceswarm`
+          - Description: Swarm deployment mode including replicas, placement constraints, resources, restart policies, rollback, and update configurations.
+          - Variables:
+              - `${1}`: Endpoint mode (vip, dnsrr)
+              - `${2}`: Replicas count
+              - `${3}`: Global mode true/false
+              - `${4}`: Node role manager/worker
+              - `${5}-${8}`: CPU and memory limits and reservations
+              - `${9}-${24}`: Restart, rollback, and update policy configuration parameters
 8. **Docker Service Environment Section**
     - Prefixes: `env`, `dcsenv`, `serviceenv`
     - Description: Environment variable file inclusion and optional inline environment variables.
@@ -104,35 +126,24 @@ This guide explains the available snippet prefixes you can type to quickly inser
     - Variables:
         - `${1}`: Capabilities to add (default ALL)
         - `${2}`: Capabilities to drop (default ALL)
-14. **Docker Swarm Deploy Section**
-    - Prefixes: `swarm`, `deploy`, `dcsswarm`, `dcsdeploy`, `servicedeploy`, `serviceswarm`
-    - Description: Swarm deployment mode including replicas, placement constraints, resources, restart policies, rollback, and update configurations.
-    - Variables:
-        - `${1}`: Endpoint mode (vip, dnsrr)
-        - `${2}`: Replicas count
-        - `${3}`: Global mode true/false
-        - `${4}`: Node role manager/worker
-        - `${5}-${8}`: CPU and memory limits and reservations
-        - `${9}-${24}`: Restart, rollback, and update policy configuration parameters
-
 
 
 ## How to Use the Snippets
 
 - Start with the **`df`** prefix snippet to create the overall Docker Compose file scaffold. This sets the project name based on your directory and filename.
 - Define volumes and networks:
-    - Use **`cnlv`** (or `cnev`) to create new local volumes.
-    - Use **`cnln`** (or `cnen`) to create new local networks.
+    - Use **`nlv`** to create new local volumes.
+    - Use **`nln`** to create new local networks.
 - Add your services under the `services:` section using the service-level snippets:
     - **`info`** for service basics like image, container name, description.
     - **`control`** to add restart policies, privilege settings, and dependencies.
+    - **`deploy`** for Docker Swarm deployment configuration (replicas, placement, resources).
     - **`env`** for environment variables and env_file inclusion.
     - **`net`** to configure network mode, ports, and DNS settings.
     - **`store`** for volume mounting and storage options.
     - **`logs`** or **`health`** for healthchecks and logging.
     - **`hw`** to specify hardware limits like CPU and memory.
     - **`cap`** for setting container capabilities.
-    - **`deploy`** for Docker Swarm deployment configuration (replicas, placement, resources).
 
 ***
 

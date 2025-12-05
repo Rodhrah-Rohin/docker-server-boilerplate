@@ -1,0 +1,144 @@
+{
+  // file level
+  "Docker Compose Service": {
+    "prefix": [
+      "df",
+      "docker-service"
+    ],
+    "body": [
+      "name: \"${1:${TM_DIRECTORY/.*[\\\\\\/](.*)$/$1/}}_${2:${TM_FILENAME_BASE/^([^\\.]+).*/$1/}}\"",
+      "",
+      "volumes:",
+      "# use nlv for a new volume snippet",
+      "# use elv for an existing volume snippet",
+      "",
+      "networks: ",
+      "# use nln for a new network snippet",
+      "# use eln for an existing network snippet",
+      "",
+      "services:",
+      "# use info for a new service(info section) snippet",
+      "",
+    ],
+    "description": "Docker Compose with group_folder + filename base snippet"
+  },
+  // service level: init
+  "docker service init/info section": {
+    "prefix": [
+      "init",
+      "info",
+      "dcsinfo",
+      "serviceinfo",
+      "initservice"
+    ],
+    "body": [
+      "",
+      "\t$1:",
+      "\t\t# info",
+      "\t\timage: \"${5:custom_image}:${6:latest}\"",
+      "\t\tcontainer_name: \"${8:${TM_DIRECTORY/.*[\\\\\\/](.*)$/$1/}}_${7:${TM_FILENAME_BASE/^([^\\.]+).*/$1/}}_${1:app}\"",
+      "\t\thostname: \"$1_$7_$8\"",
+      "\t\tdomainname: \"$1.${2:example.com}\"",
+      "\t\taliases:",
+      "\t\t\t- \"$1.$7.$8\"",
+      "\t\t\t- \"$1.$2\"",
+      "\t\tdescription: \"${3:A generic description for the service}\"",
+      "\t\tlabels:",
+      "\t\t\tcom.portainer.infra.commin.description: \"$3\"",
+      "\t\t\tcom.portainer.infra.commin.justification: \"${4:justification for this service}\"",
+      ""
+    ],
+    "description": "The informative and initialization section for the service"
+  },
+  // service level: control
+  "docker service control section": {
+    "prefix": [
+      "ctrl",
+      "control",
+      "dcscontrol",
+      "servicecontrol"
+    ],
+    "body": [
+      "",
+      "\t\t# control",
+      "\t\tprivileged: ${1|true,false|}",
+      "\t\trestart: ${2|no,always,on-failure,on-failure:3,unless-stopped|}",
+      "\t\t#entrypoint: /some/entrypoint/file.sh",
+      "\t\t#command: echo \"some example command to run on container start\"",
+      "\t\tdepends_on:",
+      "\t\t\t${3:app2}:",
+      "\t\t\t\tcondition: ${4|service_started,service_healthy,service_completed_successfully|}",
+      "\t\t\t\trestart: ${5|true,false|}",
+      "\t\t\t\trequired: ${6|true,false|}",
+      ""
+    ],
+    "description": "The control section for the service"
+  },
+  // service level: health
+  "docker service health section": {
+    "prefix": [
+      "logs",
+      "health",
+      "dcslogs",
+      "dcshealth",
+      "servicelogs",
+      "servicehealth"
+    ],
+    "body": [
+      "",
+      "\t\t# health",
+      "\t\tattach: ${1|true,false|}",
+      "\t\thealthcheck:",
+      "\t\t\ttest: [${2:\"CMD-SHELL\", \"curl -f http://localhost/ || exit 1\"}]",
+      "\t\t\tinterval: ${3:1m}",
+      "\t\t\ttimeout: ${4:10s}",
+      "\t\t\tretries: ${5:3}",
+      "\t\t\tstart_period: ${6:1m}",
+      "\t\tlogging:",
+      "\t\t\t# refer here for more info https://docs.docker.com/engine/logging/configure/",
+      "\t\t\tdriver: ${7|json-file,local,syslog|}",
+      "\t\t\toptions:",
+      "\t\t\t\tmax-size: 10m",
+      "\t\t\t\tmax-file: 3",
+      ""
+    ],
+    "description": "The health section for the service"
+  },
+  // service level: hardware
+  "docker service hardware section": {
+    "prefix": [
+      "hw",
+      "dcshw",
+      "servicehw"
+    ],
+    "body": [
+      "",
+      "\t\t# hardware",
+      "\t\tcpu_count: ${1:0.5}",
+      "\t\tcpu_percent: ${2:100}",
+      "\t\tmem_limit: ${3:512M}",
+      "\t\tmem_reservation: ${4:256M}",
+      ""
+    ],
+    "description": "The hardware section for the service"
+  },
+  // service level: capabilities
+  "docker service capabilities section": {
+    "prefix": [
+      "cap",
+      "dcscap",
+      "servicecap"
+    ],
+    "body": [
+      "",
+      "\t\t# capabilities",
+      "\t\t#  https://man7.org/linux/man-pages/man7/capabilities.7.html",
+      "\t\tcap_add:",
+      "\t\t\t- ${1:ALL}",
+      "\t\tcap_drop:",
+      "\t\t\t- ${2:ALL}",
+      ""
+    ],
+    "description": "The capabilities section for the service"
+  }
+}

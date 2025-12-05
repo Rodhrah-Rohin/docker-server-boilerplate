@@ -88,22 +88,22 @@ echo "     CREATING CFD .ENV FILES"
 echo "=================================="
 
 # Create compose CFD dirs and file
-mkdir -p "$SECRETS_FOLDER/common/infra/compose"
+mkdir -p "$SECRETS_FOLDER/compose/common/infra"
 if [[ -n "$CF_TOKEN_COMPOSE" ]]; then
-    echo "CFD_TOKEN=$CF_TOKEN_COMPOSE" > "$SECRETS_FOLDER/common/infra/compose/cfd.env"
+    echo "CFD_TOKEN=$CF_TOKEN_COMPOSE" > "$SECRETS_FOLDER/compose/common/infra/cfd.env"
     echo "✓ Compose CFD token configured"
 else
-    touch "$SECRETS_FOLDER/common/infra/compose/cfd.env"
+    touch "$SECRETS_FOLDER/compose/common/infra/cfd.env"
     echo "⚠ No compose CFD token provided"
 fi
 
 # Create swarm CFD dirs and file
-mkdir -p "$SECRETS_FOLDER/common/infra/swarm"
+mkdir -p "$SECRETS_FOLDER/swarm/common/infra"
 if [[ -n "$CF_TOKEN_SWARM" ]]; then
-    echo "CFD_TOKEN=$CF_TOKEN_SWARM" > "$SECRETS_FOLDER/common/infra/swarm/cfd.env"
+    echo "CFD_TOKEN=$CF_TOKEN_SWARM" > "$SECRETS_FOLDER/swarm/common/infra/cfd.env"
     echo "✓ Swarm CFD token configured"
 else
-    touch "$SECRETS_FOLDER/common/infra/swarm/cfd.env"
+    touch "$SECRETS_FOLDER/swarm/common/infra/cfd.env"
     echo "⚠ No swarm CFD token provided"
 fi
 
