@@ -1,67 +1,27 @@
 name: "common_infra"
 
-volumes:
-  app_data:
-    name: "common_infra_app_volume"
-    driver: local
-    driver_opts:
-      device: $DATA_DIR/common/infra/app/
-      o: bind
-      type: local
-
 networks:
-  infra_common_connector:
-    external: true
-    name: "common_infra_connector"
+  infra_network:
+    name: "common_infra_compose_network"
 
 services:
-  app:
-    # informative
-    image: "common_infra_app_image:latest"
-    container_name: "common_infra_app"
-    hostname: "common_infra_app_host"
-    aliases:
-      - "app.common.infra"
-    description: "A UI to manage and monitor docker stacks services"
-    domainname: "common.infra.app.local"
-    labels:
-      com.portainer.infra.commin.description: "Container description"
-      com.portainer.infra.commin.justification: "Need for this container"
+  cfd:
+    app:
+      # info
+      image: "cloudflared/cloudflared:latest"
+      container_name: "common_infra_app"
+      hostname: "app_infra_common"
 
     # control
     privileged: false
     restart: always
-    entrypoint: /code/entrypoint.sh
-    command: ls
-    depends_on:
-      app2:
-        condition: service_healthy
-        restart: always
-        required: true
-
-    # environment
-    environment:
-      - ENV_VAR=example_value
+    command: tunnel --no-autoupdate run
     env_file:
-      - $SECRETS_DIR/common/infra/app.env
+      - $SECRETS_DIR/compose/common/infra/cfd.env
 
-    # networking
-    network_mode: bridge
+    # network
     networks:
-      - infra_common_connector
-    ports:
-      - "8080:80"
-    expose:
-      - "80"
-    dns:
-      - "1.1.1.1"
-      - "8.8.8.8"
-
-    # storage
-    storage_opt:
-      size: "1G"
-    volumes:
-      - app_data:/data
+      - infra_network
 
     # logs
     attach: true
@@ -71,18 +31,19 @@ services:
         max-size: "10m"
         max-file: "5"
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost/ || exit 1"]
+      test:
+        [
+          "cloudflared",
+          "tunnel",
+          "health",
+          "--ready-endpoint",
+          "${TUNNEL_METRICS}/ready",
+        ]
       interval: 1m
       timeout: 10s
       retries: 3
       start_period: 40s
 
     # hardware
-    cpu_count: 1
-    cpu_percent: 100
+    cpu_count: 0.5
     mem_limit: 512M
-    mem_reservation: 256M
-
-    # capabilities
-    cap_add:
-      - ALL
