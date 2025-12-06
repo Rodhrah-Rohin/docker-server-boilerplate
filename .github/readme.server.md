@@ -1,17 +1,5 @@
 # <SERVER_NAME> Server
 
-## VPS Details 
-**Server Code**: <SERVER_CODE>
-
-**Specification**:
-	
-	- CPU:  <SERVER_CPU_COUNT>
-
-	- RAM: <SERVER_RAM>
-
-	- Storage: <SERVER_STORAGE_CAPACITY> <SERVER_STORAGE_TYPE>
-
-
 # First steps
 - Run the template-setup action in github
 
@@ -37,36 +25,7 @@
 Please go through the [general list of good practices](./Guidelines.md)
 
 ## Files/Folder organization
-
-- .Github/ - Consists of all information and functions related to github
-	- Workflows/ - Consists of automated workflows to help you manage the deployment and management of you server
-		- Release.yml - releases the code in main branch and deploys the services
-		- schedule.yml - runs tasks on a schedule like updates, backups, health checks, etc
-	- CHANGELOG.md - track the updates and help others understand what changed
-	- Guidelines.md - a good set of suggestions to use to help you run secure and stable  services
-	- README.md - Hellooo 😊
-
-- Services/ - Consists of the scope seperated services
-	- Private/ - Services needed only to the administration
-		- Readme.md - Please read through before development
-	- Protected/ - Services accessible to the company employees as well
-		- Readme.md - Please read through before development
-	- Public/ - Accessible by anyone on the internet
-		- Readme.md - Please read through before development
-
-- Templates/ - Consists of templates that can be used to quickly configure services
-	- service.yml - this is a service snippet to quickly get a service pasted(add these to the VSCODE snippets to be more efficient)
-	- stack.compose.yml - this is a service snippet to quickly get a service pasted(add these to the VSCODE snippets to be more efficient)
-
-- logs/ - Consists of all the logs created by the repository(high level)
-
-- Scripts/ - Consists of scripts to help you quickly maintain the configurations
-	- setup.sh - first time initialization to help properly set up, install, and configure docker with docker compose __suggested to delete this file after a completed install__
-	- genenv.sh - generate a bunch of env files securely to use in compose files
-	- gensec.sh - generate a bunch of secret files securely to use in compose files
-	- runstack.sh - Runs specific stack/s along with generating the envs needed for the stack(you can use this to deply new stacks without needing to redeploy all services)
-
-- run.sh - the list of commands fired to setup/update the services
+### [check the folder.md in root of the project](../folder.md)
 
 ## Workflow of the project
 ### [Checklist can be found here](./Checklist.md)
