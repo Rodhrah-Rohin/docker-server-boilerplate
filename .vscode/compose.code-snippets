@@ -1,128 +1,183 @@
 {
-	"Docker Top Level Volume Template":{
-		"prefix": ["volume","compose-volume"],
-		"description":"Gives you the docker compose volume snippet",
-		"body": [
-			"",
-			"${1:'Service'}_data:",
-			"\tname: \"${3|private,protected,public|}_${2:$TM_FILENAME_BASE}_$1_volume\"",
-			"\tdriver: local",
-			"\tdriver_opts:",
-			"\t\tdevice: \\$DATA_DIR/$3/$2/$1/",
-			"\t\to: bind",
-			"\t\ttype: local",
-			""
-		]
-	},
-	"Docker Top Level Service Template":{
-		"prefix": ["service","compose-service"],
-		"description":"Gives you the docker compose service snippet",
-		"body": [
-			"",
-			"\t${1:'Service'}:",
-			"\t\timage: \"customreg.com/user/image\"",
-			"\t\tcontainer_name: \"$3_$2_$1\"",
-			"\t\tdomainname: \"\\$PRIMARY_DOMAIN.local\"",
-			"\t\thostname: \"$1.$2.$3\"",
-			"\t\tdepends_on:",
-			"\t\t\t- service1",
-			"\t\tlabels:",
-			"\t\t\tcom.$1.${2:$TM_FILENAME_BASE}.${3|private,protected,public|}.description: \"Description of the service\"",
-			"\t\t\tcom.$1.$2.$3.justification: \"Why do we need this service\"",
-			"\t\trestart: ${5|no,always,on-failure,unless-stopped|}",
-			"\t\tprivileged: false",
-			"\t\tsecrets:",
-			"\t\t\t- secret_name",
-			"\t\tenvironment:",
-			"\t\t\t- VARIABLE_FILE: /run/secrets/secret_file",
-			"\t\tconfigs:",
-			"\t\t\tfile: \"../configs/$1_config.json\"",
-			"\t\tenv_file:",
-			"\t\t\t- \\$SECRETS_DIR/$3/$2/$1.env",
-			"\t\tvolumes: ",
-			"\t\t\t- letsencrypt:/etc/letsencrypt",
-			"\t\t\t- docker_socket:/var/run/docker.sock:ro",
-			"\t\t\t- backup:/var/backup",
-			"\t\t\t- ${1}_data:/internal/mapping",
-			"\t\t\t- /any/other/external/source:internal/mapping",
-			"\t\texpose:",
-			"\t\t\t- \\$${1/(.*)/${1:/upcase}/}_PORT",
-			"\t\tports:",
-			"\t\t\t- \"host:docker\"",
-			"\t\tnetworks:",
-			"\t\t\t- network_vlan",
-			"\t\t\t- stack_vlan",
-			"\t\t\t- cfd_$3_connector",
-			"\t\tcpu_count: 1",
-			"\t\tcpu_percent: 100",
-			"\t\tcpu_shares: 1",
-			"\t\tcpu_period: 1",
-			"\t\tcpu_quota: 1",
-			"\t\tcpu_rt_runtime: 1",
-			"\t\tcpu_rt_period: 1",
-			"\t\tcpuset: \"1\"",
-			"\t\tmem_limit: 512m",
-			"\t\tcap_add:",
-			"\t\t\t- \"\"",
-			"\t\tcap_drop:",
-			"\t\t\t- \"\"",
-			"\t\tlogging:",
-			"\t\t\tdriver: \"syslog\"",
-			"\t\thealthcheck:",
-			"\t\t\ttest: [\"CMD\", \"curl\", \"-f\", \"https://localhost:\\$${1/(.*)/${1:/upcase}/}_PORT\"]",
-			"\t\t\tinterval: 1m30s",
-			"\t\t\ttimeout: 10s",
-			"\t\t\tretries: 3",
-			"\t\t\tstart_period: 40s",
-			""
-		]
-	},
-	"Docker Compose File Template":{
-		"prefix": ["stack","compose","docker-compose"],
-		"description": "Helps you quickly deploy a stack",
-		"isFileTemplate": true,
-		"body": [
-			"version: \"3\"",
-			"name: \"${1|private,protected,public|}_${2:$TM_FILENAME_BASE}\"",
-			"",
-			"secrets:",
-			"\tsecret_name:",
-			"\t\tfile: \\$SECRETS_DIR/$2/",
-			"",
-			"configs:",
-			"\tstack_config:",
-			"\t\tname: \"$2_config\"",
-			"\t\tfile: ../configs/$2.json",
-			"",
-			"volumes:",
-			"\tstack_data:",
-			"\t\tname: \"$1_$2_volume\"",
-			"",
-			"\tdocker_socket:",
-			"\t\texternal: true",
-			"\t\tname: \"docker_socket\"",
-			"",
-			"\tletsencrypt:",
-			"\t\texternal: true",
-			"\t\tname: \"letsencrypt\"",
-			"",
-			"\tbackup:",
-			"\t\texternal: true",
-			"\t\tname: \"backup\"",
-			"",
-			"networks:",
-			"\tnetwork_vlan:",
-			"\t\texternal: true",
-			"\t\tname: \"$1_vlan\"",
-			"",
-			"\tstack_vlan:",
-			"\t\tname: \"$1_$2_vlan\"",
-			"",
-			"\tcfd_$1_connector:",
-			"\t\tname: \"$1_infra_cfd_connector\"",
-			"",
-			"services:",
-			"",
-		]
-	}
+  // file level
+  "Docker Compose Service": {
+    "prefix": [
+      "df",
+      "docker-service"
+    ],
+    "body": [
+      "name: \"${1:${TM_DIRECTORY/.*[\\\\\\/](.*)$/$1/}}_${2:${TM_FILENAME_BASE/^([^\\.]+).*/$1/}}\"",
+      "",
+      "volumes:",
+      "# use nlv for a new volume snippet",
+      "# use elv for an existing volume snippet",
+      "",
+      "networks: ",
+      "# use nln for a new network snippet",
+      "# use eln for an existing network snippet",
+      "",
+      "services:",
+      "# use info for a new service(info section) snippet",
+      "",
+    ],
+    "description": "Docker Compose with group_folder + filename base snippet"
+  },
+  // service level: init
+  "docker compose init/info section": {
+    "prefix": [
+      "init",
+      "info",
+      "dcsinfo",
+      "serviceinfo",
+      "initservice"
+    ],
+    "body": [
+      "",
+      "\t$1:",
+      "\t\t# info",
+      "\t\timage: \"${5:custom_image}:${6:latest}\"",
+      "\t\tcontainer_name: \"${8:${TM_DIRECTORY/.*[\\\\\\/](.*)$/$1/}}_${7:${TM_FILENAME_BASE/^([^\\.]+).*/$1/}}_${1:app}\"",
+      "\t\thostname: \"$1_$7_$8\"",
+      "\t\tdomainname: \"$1.${2:example.com}\"",
+      "\t\taliases:",
+      "\t\t\t- \"$1.$7.$8\"",
+      "\t\t\t- \"$1.$2\"",
+      "\t\tdescription: \"${3:A generic description for the service}\"",
+      "\t\tlabels:",
+      "\t\t\tcom.portainer.infra.commin.description: \"$3\"",
+      "\t\t\tcom.portainer.infra.commin.justification: \"${4:justification for this service}\"",
+      ""
+    ],
+    "description": "The informative and initialization section for the compose"
+  },
+  // file level: volume
+  "compose new local volume": {
+    "prefix": [
+      "nlv",
+      "cnlv",
+      "composenewlocalvolume"
+    ],
+    "body": [
+      "\t$1_data:",
+      "\t\tname: \"${3:${TM_DIRECTORY/.*[\\\\\\/](.*)$/$1/}}_${2:${TM_FILENAME_BASE/^([^\\.]+).*/$1/}}_${1:app}_compose_volume\"",
+      "\t\tdriver: local",
+      "\t\tdriver_opts:",
+      "\t\t\tdevice: \\$DATA_DIR/compose/$3/$2/$1/",
+      "\t\t\to: bind",
+      "\t\t\ttype: local",
+      ""
+    ],
+    "description": "A high level docker compose volume snippet to create a new volume"
+  },
+  "compose existing local volume": {
+    "prefix": [
+      "elv",
+      "celv",
+      "composeexistinglocalvolume"
+    ],
+    "body": [
+      "\t$1_data:",
+      "\t\tname: \"${3:${TM_DIRECTORY/.*[\\\\\\/](.*)$/$1/}}_${2:${TM_FILENAME_BASE/^([^\\.]+).*/$1/}}_${1:app}_compose_volume\"",
+      "\t\texternal: true",
+      ""
+    ],
+    "description": "A high level docker compose volume snippet to connect and existing volume"
+  },
+  // file level: network
+  "compose new local network": {
+    "prefix": [
+      "nln",
+      "cnln",
+      "composenewlocalnetwork"
+    ],
+    "body": [
+      "\t$1_network:",
+      "\t\tname: \"${2:${TM_DIRECTORY/.*[\\\\\\/](.*)$/$1/}}_${1:${TM_FILENAME_BASE/^([^\\.]+).*/$1/}}_compose_network\"",
+      "\t\t# attachable: true",
+      "\t\t# driver: bridge",
+      "\t\t# enable_ipv4: true",
+      "\t\t# enable_ipv6: true",
+      "\t\t# labels:",
+      "\t\t\t#$1.$2.description: \"Description of the network\"",
+      ""
+    ],
+    "description": "A high level docker compose network snippet to create a new network"
+  },
+  "compose existing local network": {
+    "prefix": [
+      "eln",
+      "celn",
+      "composeexistinglocalnetwork"
+    ],
+    "body": [
+      "\t$1_network:",
+      "\t\tname: \"${3:${TM_DIRECTORY/.*[\\\\\\/](.*)$/$1/}}_${2:${TM_FILENAME_BASE/^([^\\.]+).*/$1/}}_${1:app}_compose_network\"",
+      "\t\texternal: true",
+      ""
+    ],
+    "description": "A high level docker compose network snippet to connect to existing networks"
+  },
+  // service level: environment
+  "docker compose environment section": {
+    "prefix": [
+      "env",
+      "dcsenv",
+      "serviceenv"
+    ],
+    "body": [
+      "",
+      "\t\t# environment",
+      "\t\tenv_file: ",
+      "\t\t\t- \\$SECRETS_DIR/compose/${3:${TM_DIRECTORY/.*[\\\\\\/](.*)$/$1/}}/${2:${TM_FILENAME_BASE/^([^\\.]+).*/$1/}}/${1:$CLIPBOARD}.env",
+      "\t\t#recommended to use env_file",
+      "\t\t#environment:",
+      "\t\t\t#- ENV_VAR=value",
+      ""
+    ],
+    "description": "The environment section for the service for compose"
+  },
+  // service level: networking
+  "docker compose network section": {
+    "prefix": [
+      "net",
+      "dcsnet",
+      "servicenet"
+    ],
+    "body": [
+      "",
+      "\t\t# network",
+      "\t\tnetwork_mode: ${3|none,host,service:_name,container:_name|}",
+      "\t\tnetworks:",
+      "\t\t\t- ${5:${TM_DIRECTORY/.*[\\\\\\/](.*)$/$1/}}_${4:${TM_FILENAME_BASE/^([^\\.]+).*/$1/}}_compose_network",
+      "\t\tports:",
+      "\t\t\t- \"${1:expose_port}:${2:internal_port}\"",
+      "\t\texpose:",
+      "\t\t\t- \"$2\"",
+      "\t\tdns:",
+      "\t\t\t- \"1.1.1.1\"",
+      "\t\t\t- \"8.8.8.8\"",
+      "\t\tlinks:",
+      "\t\t\t- ${6: app2_name}",
+      ""
+    ],
+    "description": "The networking section for the service for compose"
+  },
+  // service level: storage
+  "docker compose storage section": {
+    "prefix": [
+      "store",
+      "dcsstore",
+      "servicestore"
+    ],
+    "body": [
+      "",
+      "\t\t# Storage",
+      "\t\tstorage_opts:",
+      "\t\t\tsize: \"${1:limits(1G,256MB)}\"",
+      "\t\tvolumes:",
+      "\t\t\t- ${5:${TM_DIRECTORY/.*[\\\\\\/](.*)$/$1/}}_${4:${TM_FILENAME_BASE/^([^\\.]+).*/$1/}}_${3:$CLIPBOARD}_compose_data:${2:internal/localtion}",
+      ""
+    ],
+    "description": "The storage section for the service for compose"
+  }
 }

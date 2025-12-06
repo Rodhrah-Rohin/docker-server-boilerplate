@@ -1,0 +1,59 @@
+name: "common_infra"
+
+networks:
+  infra_network:
+    name: "common_infra_swarm_network"
+
+services:
+  cfd:
+    app:
+      # info
+      image: "cloudflared/cloudflared:latest"
+      container_name: "common_infra_app"
+      hostname: "app_infra_common"
+
+    # control
+    privileged: false
+    restart: always
+    command: tunnel --no-autoupdate run
+    env_file:
+      - $SECRETS_DIR/swarm/common/infra/cfd.env
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+      condition: on-failure
+      labels:
+        com.portainer.infra.commin.description: "Cloudflared docker image"
+        com.portainer.infra.commin.justification: "Needed for exposing swarm services securely to the internet"
+      placement:
+        constraints: [node.role == manager]
+
+    # network
+    networks:
+      - infra_network
+
+    # logs
+    attach: true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    healthcheck:
+      test:
+        [
+          "cloudflared",
+          "tunnel",
+          "health",
+          "--ready-endpoint",
+          "${TUNNEL_METRICS}/ready",
+        ]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # hardware
+    cpu_count: 0.5
+    mem_limit: 512M
