@@ -36,8 +36,8 @@ jobs:
           replace-in-files --string "<SERVER_NAME>" --replacement "${{ inputs.SERVER_NAME }}"  "./**/**" "./.**" "./.**/**"
           replace-in-files --string "@officialk" --replacement "@${{ github.repository_owner }}"  "./**/**" "./.**" "./.**/**"
           rm .github/workflows/template-setup.yml
-          rm readme.md
-          mv .github/workflows/readme.server.md readme.md
+          rm .github/workflows/readme.md
+          mv .github/workflows/readme.server.md .github/workflows/readme.md
 
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
