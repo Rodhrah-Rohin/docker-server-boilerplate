@@ -1,14 +1,5 @@
 name: "common_infra"
 
-volumes:
-  app_data:
-    name: "common_infra_app_volume"
-    driver: local
-    driver_opts:
-      device: $DATA_DIR/common/infra/app/
-      o: bind
-      type: local
-
 networks:
   infra_common_connector:
     external: true
