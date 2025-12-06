@@ -1,16 +1,35 @@
 #!/bin/bash
 
+# WHAT THE RUNNER DOES?
+# go through each folder(group) in compose
+    # for each file(stack)
+        # bring down a service
+        # pull the latest image(as per tag attached)
+        # start the service and stack
+
+
 # --------------------------------------------------------------
 # Function: runDockerCompose
 # Description: Deploys a Docker Compose stack using a provided file.
 # Parameters:
-#   $1 - Network Scope (group name)
+#   $1 - Group name(folder)
 #   $2 - Docker Compose file name (e.g., stack.yml)
 # --------------------------------------------------------------
 runDockerCompose() {
     local GROUP=$1
     local FILENAME=$2
     local STACK="${FILENAME%.*}"
+
+    echo ""
+    echo "---------------------------------------------"
+    echo "Pulling latest images for '${STACK}' stack in group '${GROUP}'"
+    echo "---------------------------------------------"
+    echo "(You can ignore any warnings here)"
+    echo "---------------------------------------------"
+
+
+    docker compose -p "${GROUP}_${STACK}" --file $FILENAME pull
+    docker compose -p "${GROUP}_${STACK}" --file $FILENAME down
 
     echo ""
     echo "---------------------------------------------"
@@ -74,5 +93,22 @@ for group_path in "${groups[@]}"; do
     cd "$PROJECT_DIR/compose" || exit 1
 done
 
+echo ""
+echo "===== Starting Cleanup ====="
+echo ""
+
+echo "removing stale/unused containers"
+docker container prune -f --filter "until=750h"
+
+echo "removing stale/unused networks"
+docker network prune -f --filter "until=750h"
+
+echo "removing stale/unused volumes"
+docker volume prune -f
+
+echo "removing stale/unused images"
+docker image prune -af --filter "until=750h"
+
+echo ""
 echo "===== Docker Compose service setup completed ====="
 echo ""
